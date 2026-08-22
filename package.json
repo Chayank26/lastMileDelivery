@@ -1,0 +1,31 @@
+{
+  "name": "last-mile-delivery-platform",
+  "version": "1.0.0",
+  "description": "Enterprise Last-Mile Delivery Tracker with dynamic rate calculation engine, geospatial zone detection, and ACID auto-assignment",
+  "private": true,
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=server\" \"npm run dev --workspace=client\"",
+    "dev:server": "npm run dev --workspace=server",
+    "dev:client": "npm run dev --workspace=client",
+    "build": "npm run build --workspace=server && npm run build --workspace=client",
+    "start": "npm run start --workspace=server"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": [
+    "logistics",
+    "last-mile-delivery",
+    "geospatial",
+    "leaflet",
+    "turfjs",
+    "rate-engine",
+    "socketio"
+  ],
+  "author": "",
+  "license": "ISC"
+}
