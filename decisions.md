@@ -97,5 +97,22 @@ This file logs every meaningful architectural, technological, and design decisio
 * **Why this approach?**
   * Providing an automated seed helper ensures evaluators can immediately render interactive Leaflet maps and test intra vs. inter-zone rate rules without drawing polygons manually from scratch.
 
+---
+
+## Phase 5: Dynamic Rate Calculation Engine (Pure Core Logic)
+
+### 14. Decision: Pure Functional Rate Calculation Engine Architecture
+* **Context:** Rate calculation logic involves multi-variable rules (dimensions, actual weight, volumetric divisor, zone tiering, B2B/B2C rates, COD surcharges).
+* **Why this approach?**
+  * Building `calculateOrderPrice` as a pure, side-effect-free function accepting `IRateCalculationParams` ensures 100% deterministic mathematical outcomes.
+  * Allows both pre-order cost previews, backend order placement endpoints, and admin rate sandbox simulators to consume the exact same underlying formula without duplicating pricing logic.
+
+### 15. Decision: Billable Weight Selection Rule ($\max(\text{Actual Weight}, \text{Volumetric Weight})$)
+* **Context:** Light bulky packages (e.g. large styrofoam boxes) take up significant cargo volume in delivery vans despite low physical weight.
+* **Why this approach?**
+  * Standard industry volumetric formula $\frac{L \times B \times H}{5000}$ computes equivalent volumetric mass.
+  * Billing on the higher value ensures logistics cost recovery while providing full breakdown transparency (`actualWeightKg`, `volumetricWeightKg`, `billableWeightKg`) to customers before order confirmation.
+
+
 
 

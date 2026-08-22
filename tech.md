@@ -22,5 +22,7 @@ This file catalogs every technology, framework, npm package, and infrastructure 
 | **ODM / DB Driver** | `mongoose` (`v8.3.1`) | Mongoose | Elegant Object Data Modeling library for Node.js & MongoDB. Manages schema validation, 2dsphere spatial indexes, and ACID session transactions (`startSession`). |
 | **Password Hashing** | `bcryptjs` (`v2.4.3`) | bcryptjs | Pure JavaScript implementation of bcrypt password hashing algorithm. Selected over native C++ `bcrypt` to prevent native build compilation failures across OS environments. |
 | **Authentication Token** | `jsonwebtoken` (`v9.0.2`) | JSON Web Tokens (JWT) | Compact, URL-safe means of representing claims between two parties. Used for stateless HTTP authentication across client SPA and backend API services. |
+| **Pricing Calculation Engine** | Pure TS Module (`rateEngine.ts`) | Pure Functional Engine | Side-effect-free pure mathematical function for deterministic pricing calculations. Eliminates hardcoding and allows identical pricing execution across pre-cost previews, placement endpoints, and rate simulator sandboxes. |
+
 
 

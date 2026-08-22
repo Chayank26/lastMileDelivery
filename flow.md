@@ -146,4 +146,34 @@ This file details the runtime flow, entrypoints, sequence of execution, and call
   * `POST /` $\rightarrow$ `authenticate` $\rightarrow$ `requireRole(ADMIN)` $\rightarrow$ `createZone` in `server/src/controllers/zoneController.ts` $\rightarrow$ `validateGeoJsonPolygon` in `server/src/utils/geo.ts`
   * `POST /seed` $\rightarrow$ `authenticate` $\rightarrow$ `requireRole(ADMIN)` $\rightarrow$ `seedSampleZones` in `server/src/controllers/zoneController.ts`
 
+---
+
+## Phase 5 Execution & Rate Engine Calculation Flow
+
+```
+[Inputs: Dimensions (L×B×H), Actual Weight, Order Type (B2B/B2C), Payment Type (Prepaid/COD), Pickup Zone, Drop Zone, RateCard]
+        │
+        ▼
+[calculateOrderPrice() in server/src/services/rateEngine.ts]
+        │
+        ├── 1. Calculate Volumetric Weight: (Length × Width × Height) / rateCard.volumetricDivisor
+        ├── 2. Determine Billable Weight: Max(Actual Weight, Volumetric Weight)
+        ├── 3. Determine Zone Tier: (pickupZoneId === dropZoneId) ? Intra-Zone : Inter-Zone
+        ├── 4. Select Rate per Kg:
+        │        ├── Intra-Zone B2B ──► rateCard.intraZoneB2BRatePerKg
+        │        ├── Intra-Zone B2C ──► rateCard.intraZoneB2CRatePerKg
+        │        ├── Inter-Zone B2B ──► rateCard.interZoneB2BRatePerKg
+        │        └── Inter-Zone B2C ──► rateCard.interZoneB2CRatePerKg
+        ├── 5. Calculate Weight Fee: Billable Weight × Rate per Kg
+        ├── 6. Calculate COD Surcharge: (PaymentType === COD) ? (Flat Surcharge + codAmount * PercentageFee) : 0
+        └── 7. Calculate Total Charge: Base Fee + Weight Fee + COD Surcharge
+```
+
+### Module Call Graph (Phase 5)
+* `server/src/services/rateEngine.ts` exports:
+  * `calculateOrderPrice(params)`: Pure pricing calculation function.
+* `server/src/services/rateEngine.test.ts` exports:
+  * `runRateEngineTests()`: Verification test suite executing math assertions.
+
+
 
