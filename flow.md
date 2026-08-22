@@ -38,3 +38,38 @@ This file details the runtime flow, entrypoints, sequence of execution, and call
   * `express.json()` middleware to parse body payloads up to 10MB.
 * `client/src/App.tsx` calls:
   * `fetch('/api/health')` to query server health and display active phase status.
+
+---
+
+## Phase 2 Execution & Database Architecture Flow
+
+```
+[Server Entrypoint: index.ts]
+        │
+        ▼
+[connectDatabase(): config/db.ts]
+        │
+        ├── Mongoose Connects to MONGODB_URI
+        ├── Registers Connection Lifecycle Events (connected, error, disconnected)
+        │
+        ▼
+[Data Models Registered: server/src/models/]
+        │
+        ├── User.ts ─────────► RBAC Roles (CUSTOMER, AGENT, ADMIN) & bcrypt password hashing
+        ├── Zone.ts ─────────► GeoJSON Polygons + 2dsphere Spatial Index
+        ├── RateCard.ts ─────► Dynamic Pricing rules (Volumetric Divisor, Base Fee, Intra/Inter Rates)
+        ├── AgentProfile.ts ─► Agent Status Machine, Location Point + 2dsphere, Concurrency limit
+        ├── Order.ts ────────► Addresses, Package dimensions, Price Breakdown, Failure diagnostics
+        └── OrderAuditLog.ts ► Immutable Append-Only Event Ledger
+```
+
+### Database & Model Dependencies (Phase 2)
+1. **[User.ts](file:///Users/chayankbhargava/Projects/lastMileDelivery/server/src/models/User.ts):**
+   * Referenced by `Order.ts` (`customer`, `createdByAdmin`, `assignedAgent`) and `AgentProfile.ts` (`user`).
+2. **[Zone.ts](file:///Users/chayankbhargava/Projects/lastMileDelivery/server/src/models/Zone.ts):**
+   * Indexed via `2dsphere` spatial boundary. Referenced by `Order.ts` (`pickupZone`, `dropZone`) and `AgentProfile.ts` (`assignedZone`).
+3. **[AgentProfile.ts](file:///Users/chayankbhargava/Projects/lastMileDelivery/server/src/models/AgentProfile.ts):**
+   * Indexed via `2dsphere` on `currentLocation`. Enforces concurrency bounds (`currentActiveOrderCount <= maxConcurrentOrders`).
+4. **[OrderAuditLog.ts](file:///Users/chayankbhargava/Projects/lastMileDelivery/server/src/models/OrderAuditLog.ts):**
+   * Append-only ledger written whenever an `Order` status transitions.
+

@@ -19,3 +19,6 @@ This file catalogs every technology, framework, npm package, and infrastructure 
 | **Icons Library** | `lucide-react` (`v0.368.0`) | Lucide React | Modern, lightweight icon suite with consistent stroke weights for enterprise dashboard visual cues. |
 | **Parallel Process Runner** | `concurrently` (`v8.2.2`) | Concurrently | Utility script executor to run server watch mode and client dev server simultaneously in a single terminal prompt (`npm run dev`). |
 | **Geospatial Engine** | `@turf/turf` (`v6.5.0`) | Turf.js | Advanced spatial analysis engine for point-in-polygon zone matching and Haversine distance calculation directly in JavaScript. |
+| **ODM / DB Driver** | `mongoose` (`v8.3.1`) | Mongoose | Elegant Object Data Modeling library for Node.js & MongoDB. Manages schema validation, 2dsphere spatial indexes, and ACID session transactions (`startSession`). |
+| **Password Hashing** | `bcryptjs` (`v2.4.3`) | bcryptjs | Pure JavaScript implementation of bcrypt password hashing algorithm. Selected over native C++ `bcrypt` to prevent native build compilation failures across OS environments. |
+

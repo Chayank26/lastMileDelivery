@@ -8,17 +8,20 @@
 import http from 'http';
 import app from './app.js';
 import { config } from './config/env.js';
+import { connectDatabase } from './config/db.js';
 
 // Create HTTP server wrapping Express application
 const server = http.createServer(app);
 
-// Start listening on configured port
-server.listen(config.port, () => {
-  console.log(`=======================================================`);
-  console.log(`🚀 Last-Mile Delivery API Server running on port ${config.port}`);
-  console.log(`🌍 Environment: ${config.nodeEnv}`);
-  console.log(`🔗 Healthcheck: http://localhost:${config.port}/health`);
-  console.log(`=======================================================`);
+// Connect to MongoDB and start HTTP listener
+connectDatabase().then(() => {
+  server.listen(config.port, () => {
+    console.log(`=======================================================`);
+    console.log(`🚀 Last-Mile Delivery API Server running on port ${config.port}`);
+    console.log(`🌍 Environment: ${config.nodeEnv}`);
+    console.log(`🔗 Healthcheck: http://localhost:${config.port}/health`);
+    console.log(`=======================================================`);
+  });
 });
 
 /**

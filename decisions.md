@@ -31,3 +31,27 @@ This file logs every meaningful architectural, technological, and design decisio
 * **Context:** The user requested full auditability of the engineering process after each phase.
 * **Why this approach?**
   * Provides evaluators with deep visibility into engineering trade-offs, call hierarchies, and technology selection logic.
+
+---
+
+## Phase 2: Database Connection & Core Data Models (MongoDB + GeoJSON + Mongoose)
+
+### 5. Decision: MongoDB + Mongoose with 2dsphere Spatial Indexing for GeoJSON Polygons
+* **Context:** Zones are drawn as custom spatial polygons on an interactive map. We need to test whether an address coordinate falls inside a polygon boundary ($geoIntersects).
+* **Why this approach?**
+  * MongoDB natively supports GeoJSON `Polygon` and `Point` geometries with high-performance `2dsphere` spatial indexing.
+  * Mongoose models enforce schema validation while allowing spatial indexing directly via `zoneSchema.index({ boundary: '2dsphere' })`.
+* **Alternatives Considered:** Relational SQL with PostGIS (adds deployment complexity for evaluators who would need PostgreSQL + PostGIS extension installed locally).
+
+### 6. Decision: ACID Session Transactions (`runInTransaction`) via MongoDB Sessions
+* **Context:** When assigning orders to delivery agents, multiple concurrent requests (or automated triggers) could attempt to assign the same agent beyond their `maxConcurrentOrders` threshold.
+* **Why this approach?**
+  * `mongoose.startSession()` and `session.startTransaction()` provide ACID transaction guarantees across documents.
+  * If an assignment condition fails or throws, all database mutations across `AgentProfile` and `Order` are atomically rolled back.
+
+### 7. Decision: Immutable Event-Sourced `OrderAuditLog` Collection
+* **Context:** Logistics platforms require an immutable, tamper-proof history of status changes for accountability.
+* **Why this approach?**
+  * Standard in-place document updates overwrite past state history.
+  * By creating an append-only `OrderAuditLog` collection, every state transition logs the actor ID, actor role, IP address, payload snapshot, and cryptographic timestamp.
+

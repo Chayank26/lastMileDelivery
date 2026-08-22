@@ -5,8 +5,8 @@
  * Displays temporary Phase 1 architecture initialization status card.
  */
 
-import React, { useEffect, useState } from 'react';
-import { Package, ShieldCheck, Cpu, Server } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Package, Cpu, Server } from 'lucide-react';
 
 export default function App() {
   const [apiStatus, setApiStatus] = useState<{ status: string; version: string } | null>(null);

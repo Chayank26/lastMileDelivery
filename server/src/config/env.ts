@@ -10,7 +10,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 
 // Load environment variables from root directory .env file
-dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
 export const config = {
   // HTTP Server Port

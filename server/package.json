@@ -4,12 +4,12 @@
   "description": "Backend API for Last-Mile Delivery Management Platform",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "build": "tsc",
+    "dev": "npx tsx watch src/index.ts",
+    "build": "npx tsc",
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@google/genai": "^0.1.1",
+    "@google/generative-ai": "^0.11.1",
     "@turf/turf": "^6.5.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
