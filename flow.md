@@ -274,6 +274,36 @@ This file details the runtime flow, entrypoints, sequence of execution, and call
   * `GET /` $\rightarrow$ `authenticate` $\rightarrow$ `requireRole(ADMIN)` $\rightarrow$ `getAllAgents` in `server/src/controllers/agentController.ts`
   * `PUT /status` $\rightarrow$ `authenticate` $\rightarrow$ `requireRole(AGENT, ADMIN)` $\rightarrow$ `updateAgentStatus` in `server/src/controllers/agentController.ts`
 
+---
+
+## Phase 9 Execution & Order Status Lifecycle Flow
+
+```
+[HTTP Request: PATCH /api/orders/:id/status]
+        │
+        ▼
+[Middleware: authenticate & requireRole(AGENT, ADMIN) in server/src/middleware/auth.ts]
+        │
+        ▼
+[Controller: updateOrderStatus in server/src/controllers/orderController.ts]
+        │
+        ├── 1. Verifies Delivery Agent ownership (Agent can only update assigned orders)
+        ├── 2. Validates transition: `isValidStatusTransition()` (`server/src/utils/stateMachine.ts`)
+        ├── 3. If target is FAILED: Enforces mandatory `failureReasonCode` payload
+        │
+        ▼
+[ACID Session Transaction: runInTransaction in server/src/config/db.ts]
+        │
+        ├── 1. Updates Order status in MongoDB (`server/src/models/Order.ts`)
+        ├── 2. If DELIVERED / CANCELLED / FAILED: Decrements `currentActiveOrderCount` on `AgentProfile`
+        └── 3. Appends immutable `OrderAuditLog` entry (`action: STATUS_UPDATED`)
+```
+
+### Module Call Graph (Phase 9)
+* `server/src/routes/orderRoutes.ts` maps:
+  * `PATCH /:id/status` $\rightarrow$ `authenticate` $\rightarrow$ `requireRole(AGENT, ADMIN)` $\rightarrow$ `updateOrderStatus` in `server/src/controllers/orderController.ts` $\rightarrow$ `isValidStatusTransition` in `server/src/utils/stateMachine.ts`
+
+
 
 
 

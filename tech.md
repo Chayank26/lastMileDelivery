@@ -26,6 +26,8 @@ This file catalogs every technology, framework, npm package, and infrastructure 
 | **Pricing Sandbox Simulator** | `/api/rates/simulate` | Ephemeral Override Sandbox | RESTful API endpoint allowing real-time rate predictions and margin simulations with live slider overrides without mutating persistent database records. |
 | **Order Engine & Tracking** | `/api/orders` | ACID Dual-Write Order Engine | RESTful order lifecycle manager with Turf.js zone auto-detection, pure rate engine execution, atomic MongoDB ACID session dual-writes, and public tracking timeline lookups. |
 | **Agent Auto-Assignment Engine** | `assignmentEngine.ts` | Greedy Haversine Assignment | Nearest-neighbor agent matching algorithm combining Turf.js spherical distance, primary zone bias, concurrency limits (`maxConcurrentOrders`), and ACID session locking to prevent race conditions. |
+| **Order State Machine Validator** | `stateMachine.ts` | Directed Graph Validator | Explicit directed graph state transition validator enforcing legal shipment lifecycles (`CREATED` $\to$ `PICKED_UP` $\to$ `IN_TRANSIT` $\to$ `OUT_FOR_DELIVERY` $\to$ `DELIVERED` / `FAILED`) and releasing agent capacity on terminal states. |
+
 
 
 

@@ -13,6 +13,7 @@ import {
   trackOrderByTrackingId,
   autoAssignOrder,
   manualAssignOrder,
+  updateOrderStatus,
 } from '../controllers/orderController.js';
 import { authenticate, requireRole } from '../middleware/auth.js';
 import { UserRole } from '../models/User.js';
@@ -28,6 +29,9 @@ router.use(authenticate);
 router.post('/', createOrder);
 router.get('/', getAllOrders);
 router.get('/:id', getOrderById);
+
+// Order Status Lifecycle State Transition Endpoint (Agent or Admin)
+router.patch('/:id/status', requireRole(UserRole.AGENT, UserRole.ADMIN), updateOrderStatus);
 
 // Agent Assignment Endpoints (Admin only)
 router.post('/:id/auto-assign', requireRole(UserRole.ADMIN), autoAssignOrder);

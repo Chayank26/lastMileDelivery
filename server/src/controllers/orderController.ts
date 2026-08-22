@@ -6,7 +6,7 @@
  */
 
 import { Request, Response } from 'express';
-import { Order, OrderStatus, OrderType, PaymentType } from '../models/Order.js';
+import { Order, OrderStatus, OrderType, PaymentType, FailureReasonCode } from '../models/Order.js';
 import { Zone } from '../models/Zone.js';
 import { RateCard } from '../models/RateCard.js';
 import { OrderAuditLog } from '../models/OrderAuditLog.js';
@@ -16,6 +16,7 @@ import { calculateOrderPrice } from '../services/rateEngine.js';
 import { executeAutoAssignment } from '../services/assignmentEngine.js';
 import { detectZoneForCoordinates } from '../utils/geo.js';
 import { generateTrackingId } from '../utils/trackingId.js';
+import { isValidStatusTransition } from '../utils/stateMachine.js';
 import { runInTransaction } from '../config/db.js';
 
 /**
@@ -462,4 +463,125 @@ export const manualAssignOrder = async (req: Request, res: Response): Promise<vo
     });
   }
 };
+
+/**
+ * Controller: Order Status Lifecycle State Transition (`PATCH /api/orders/:id/status`).
+ * Enforces directed graph state machine validation, releases agent capacity on terminal/failed states,
+ * and records immutable audit log entries in an ACID session transaction.
+ */
+export const updateOrderStatus = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const actor = req.user!;
+    const { status, failureReasonCode, notes } = req.body;
+
+    if (!status || !Object.values(OrderStatus).includes(status as OrderStatus)) {
+      res.status(400).json({
+        error: 'Bad Request',
+        message: `Valid target status is required. Permitted: [${Object.values(OrderStatus).join(', ')}]`,
+      });
+      return;
+    }
+
+    const targetStatus = status as OrderStatus;
+
+    // Execute status transition and audit logging inside ACID session transaction
+    const updatedOrder = await runInTransaction(async (session) => {
+      const order = await Order.findById(req.params.id).session(session);
+
+      if (!order) {
+        throw new Error('Order not found.');
+      }
+
+      // Authorization Check: Delivery Agent can only update their assigned orders (Admin can update any)
+      if (
+        actor.role === UserRole.AGENT &&
+        (!order.assignedAgent || order.assignedAgent.toString() !== actor._id.toString())
+      ) {
+        throw new Error('Forbidden: Delivery agents can only update status for orders assigned to them.');
+      }
+
+      // State Machine Directed Graph Validation
+      if (!isValidStatusTransition(order.status, targetStatus)) {
+        throw new Error(`Invalid status transition from '${order.status}' to '${targetStatus}'. State graph violation.`);
+      }
+
+      // Failure Reason Code requirement check
+      if (targetStatus === OrderStatus.FAILED && !failureReasonCode) {
+        throw new Error('Failure reason code (e.g. CUSTOMER_UNAVAILABLE, INCORRECT_ADDRESS) is mandatory when marking order as FAILED.');
+      }
+
+      const previousStatus = order.status;
+      order.status = targetStatus;
+
+      if (failureReasonCode && Object.values(FailureReasonCode).includes(failureReasonCode)) {
+        order.failureReasonCode = failureReasonCode as FailureReasonCode;
+      }
+
+      await order.save({ session });
+
+      // Handle Agent Capacity Release on Terminal or Failed States
+      if (
+        order.assignedAgent &&
+        [OrderStatus.DELIVERED, OrderStatus.CANCELLED, OrderStatus.FAILED].includes(targetStatus)
+      ) {
+        const agentProfile = await AgentProfile.findOne({ user: order.assignedAgent }).session(session);
+        if (agentProfile) {
+          agentProfile.currentActiveOrderCount = Math.max(0, agentProfile.currentActiveOrderCount - 1);
+
+          // Restore agent status from MAX_CAPACITY to IDLE or EN_ROUTE_PICKUP
+          if (agentProfile.status === AgentStatus.MAX_CAPACITY) {
+            agentProfile.status = agentProfile.currentActiveOrderCount > 0 ? AgentStatus.EN_ROUTE_PICKUP : AgentStatus.IDLE;
+          } else if (agentProfile.currentActiveOrderCount === 0) {
+            agentProfile.status = AgentStatus.IDLE;
+          }
+
+          await agentProfile.save({ session });
+        }
+      }
+
+      // Write immutable event audit log
+      await OrderAuditLog.create(
+        [
+          {
+            orderId: order._id,
+            previousStatus,
+            newStatus: targetStatus,
+            actorId: actor._id,
+            actorRole: actor.role,
+            action: 'STATUS_UPDATED',
+            payloadSnapshot: {
+              previousStatus,
+              newStatus: targetStatus,
+              failureReasonCode: failureReasonCode || undefined,
+              notes: notes || undefined,
+            },
+            ipAddress: req.ip || req.socket.remoteAddress,
+            userAgent: req.get('user-agent'),
+            timestamp: new Date(),
+          },
+        ],
+        { session }
+      );
+
+      return order;
+    });
+
+    const populatedOrder = await Order.findById(updatedOrder._id)
+      .populate('customer', 'name email phone')
+      .populate('assignedAgent', 'name phone')
+      .populate('pickupZone', 'name code colorHex')
+      .populate('dropZone', 'name code colorHex');
+
+    res.status(200).json({
+      message: `Order status updated from '${updatedOrder.status}' successfully`,
+      order: populatedOrder,
+    });
+  } catch (error: any) {
+    res.status(422).json({
+      error: 'Unprocessable Entity',
+      message: error.message,
+    });
+  }
+};
+
 

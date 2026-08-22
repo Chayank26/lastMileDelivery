@@ -172,6 +172,23 @@ This file logs every meaningful architectural, technological, and design decisio
 * **Why this approach?**
   * Executing assignment inside `runInTransaction(session => ...)` checks `currentActiveOrderCount < maxConcurrentOrders` under database transaction isolation, preventing duplicate concurrent agent assignments.
 
+---
+
+## Phase 9: Order Status Lifecycle & State Machine Enforcement
+
+### 24. Decision: Directed Graph State Machine Validation (`isValidStatusTransition`)
+* **Context:** Preventing illegal state transitions (e.g. jumping from `CREATED` directly to `DELIVERED` without `PICKED_UP` or `OUT_FOR_DELIVERY`).
+* **Why this approach?**
+  * Defining a strict directed adjacency list `PERMITTED_STATUS_TRANSITIONS` enforces valid real-world physical delivery lifecycles (`CREATED` $\to$ `PICKED_UP` $\to$ `IN_TRANSIT` $\to$ `OUT_FOR_DELIVERY` $\to$ `DELIVERED` / `FAILED`).
+  * Rejects illegal state skips with an immediate `422 Unprocessable Entity` response.
+
+### 25. Decision: Automatic Agent Capacity Release on Terminal & Failed States
+* **Context:** When an order completes (`DELIVERED`), is `CANCELLED`, or fails (`FAILED`), the assigned agent frees up capacity to accept new shipments.
+* **Why this approach?**
+  * The transition controller automatically decrements `currentActiveOrderCount` on `AgentProfile`.
+  * If the agent was previously locked in `MAX_CAPACITY` status, the controller automatically restores their status to `EN_ROUTE_PICKUP` or `IDLE`, bringing them back into the auto-assignment pool.
+
+
 
 
 
