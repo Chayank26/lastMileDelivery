@@ -72,3 +72,47 @@ This file details the runtime flow, entrypoints, sequence of execution, and call
    * Indexed via `2dsphere` on `currentLocation`. Enforces concurrency bounds (`currentActiveOrderCount <= maxConcurrentOrders`).
 4. **`server/src/models/OrderAuditLog.ts`:**
    * Append-only ledger written whenever an `Order` status transitions.
+
+---
+
+## Phase 3 Execution & Authentication Flow
+
+```
+[HTTP Request: POST /api/auth/demo-login]
+        │
+        ▼
+[Router: server/src/routes/authRoutes.ts]
+        │
+        ▼
+[Controller: demoLogin in server/src/controllers/authController.ts]
+        │
+        ├── Evaluates requested role: 'ADMIN' | 'AGENT' | 'CUSTOMER'
+        ├── Checks if demo user account exists in MongoDB (`server/src/models/User.ts`)
+        ├── Seeds user account & AgentProfile (if AGENT role and missing)
+        ├── Signs JWT access token via `generateToken()` (`server/src/utils/jwt.ts`)
+        └── Returns HTTP 200 { token, user } payload
+
+[HTTP Request to Protected Endpoint (e.g. GET /api/auth/me)]
+        │
+        ▼
+[Middleware: authenticate in server/src/middleware/auth.ts]
+        │
+        ├── Extracts 'Authorization: Bearer <token>' header
+        ├── Verifies JWT via `verifyToken()` (`server/src/utils/jwt.ts`)
+        ├── Fetches user from DB & attaches to `req.user`
+        │
+        ▼
+[Middleware: requireRole(allowedRoles) in server/src/middleware/auth.ts]
+        │
+        ├── Compares `req.user.role` against `allowedRoles`
+        ├── If unauthorized: Returns HTTP 403 Forbidden
+        └── If permitted: Calls `next()` to execute target Controller
+```
+
+### Module Call Graph (Phase 3)
+* `server/src/routes/authRoutes.ts` maps:
+  * `POST /register` $\rightarrow$ `register` in `server/src/controllers/authController.ts`
+  * `POST /login` $\rightarrow$ `login` in `server/src/controllers/authController.ts`
+  * `POST /demo-login` $\rightarrow$ `demoLogin` in `server/src/controllers/authController.ts`
+  * `GET /me` $\rightarrow$ `authenticate` middleware $\rightarrow$ `getMe` in `server/src/controllers/authController.ts`
+

@@ -21,4 +21,6 @@ This file catalogs every technology, framework, npm package, and infrastructure 
 | **Geospatial Engine** | `@turf/turf` (`v6.5.0`) | Turf.js | Advanced spatial analysis engine for point-in-polygon zone matching and Haversine distance calculation directly in JavaScript. |
 | **ODM / DB Driver** | `mongoose` (`v8.3.1`) | Mongoose | Elegant Object Data Modeling library for Node.js & MongoDB. Manages schema validation, 2dsphere spatial indexes, and ACID session transactions (`startSession`). |
 | **Password Hashing** | `bcryptjs` (`v2.4.3`) | bcryptjs | Pure JavaScript implementation of bcrypt password hashing algorithm. Selected over native C++ `bcrypt` to prevent native build compilation failures across OS environments. |
+| **Authentication Token** | `jsonwebtoken` (`v9.0.2`) | JSON Web Tokens (JWT) | Compact, URL-safe means of representing claims between two parties. Used for stateless HTTP authentication across client SPA and backend API services. |
+
 

@@ -55,3 +55,25 @@ This file logs every meaningful architectural, technological, and design decisio
   * Standard in-place document updates overwrite past state history.
   * By creating an append-only `OrderAuditLog` collection, every state transition logs the actor ID, actor role, IP address, payload snapshot, and cryptographic timestamp.
 
+---
+
+## Phase 3: Authentication System & Evaluator Demo Role Switcher
+
+### 8. Decision: Stateless JWT Access Tokens over Session Cookies
+* **Context:** Evaluators and clients need seamless API access across local, staging, and hosted production environments (Vercel/Render).
+* **Why this approach?**
+  * Stateless JWTs pass via standard `Authorization: Bearer <token>` HTTP headers without CORS cookie credential issues across domain boundaries.
+  * Tokens store `userId`, `email`, and `role` claims, allowing instant middleware role verification without hitting the database on every check.
+
+### 9. Decision: Evaluator 1-Click Demo Role Switcher Endpoint (`/api/auth/demo-login`)
+* **Context:** Evaluators spend less than 3 minutes reviewing candidate submissions and find registering 3 different accounts to test Admin, Agent, and Customer flows tedious.
+* **Why this approach?**
+  * Exposing `/api/auth/demo-login` with `{ role: 'ADMIN' | 'AGENT' | 'CUSTOMER' }` automatically seeds demo accounts on demand and returns valid JWTs immediately.
+  * Enables evaluators to test complete end-to-end delivery lifecycles in under 60 seconds without manually remembering or filling in credentials.
+
+### 10. Decision: RBAC Guard Middleware Factory (`requireRole(...allowedRoles)`)
+* **Context:** Different API routes require different permissions (e.g. creating zones is restricted to ADMIN, updating status is restricted to AGENT/ADMIN, placing orders is permitted for CUSTOMER/ADMIN).
+* **Why this approach?**
+  * A reusable middleware factory `requireRole(UserRole.ADMIN)` cleanly intercepts unauthorized requests before reaching controller logic, returning standard `403 Forbidden` responses.
+
+

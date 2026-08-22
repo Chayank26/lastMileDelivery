@@ -8,6 +8,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import { config } from './config/env.js';
+import authRoutes from './routes/authRoutes.js';
 
 // Initialize core Express app instance
 const app = express();
@@ -27,6 +28,11 @@ app.use(cors({
 // 2. Body Parser: Parse incoming JSON request payloads (max 10mb limit for GeoJSON uploads)
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+/**
+ * API Route Mounting
+ */
+app.use('/api/auth', authRoutes);
 
 /**
  * Base Diagnostics & Health Routes
