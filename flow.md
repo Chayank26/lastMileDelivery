@@ -175,5 +175,36 @@ This file details the runtime flow, entrypoints, sequence of execution, and call
 * `server/src/services/rateEngine.test.ts` exports:
   * `runRateEngineTests()`: Verification test suite executing math assertions.
 
+---
+
+## Phase 6 Execution & Rate Card Simulator Flow
+
+```
+[HTTP Request: POST /api/rates/simulate]
+        │
+        ▼
+[Router: server/src/routes/rateCardRoutes.ts]
+        │
+        ▼
+[Controller: simulateRate in server/src/controllers/rateCardController.ts]
+        │
+        ├── Reads Dimensions, Actual Weight, Order Type, Payment Type, Coordinates / Zone IDs
+        ├── If coordinates provided: Runs Turf.js spatial matching (`server/src/utils/geo.ts`) to infer Pickup & Drop Zones
+        ├── Fetches active default RateCard from MongoDB (`server/src/models/RateCard.ts`)
+        ├── Merges any `rateCardOverrides` from request body (ephemeral sandbox sliders)
+        ├── Invokes `calculateOrderPrice()` in `server/src/services/rateEngine.ts`
+        └── Returns HTTP 200 { simulation: { pickupZoneId, dropZoneId, isInterZone, priceBreakdown } }
+```
+
+### Module Call Graph (Phase 6)
+* `server/src/routes/rateCardRoutes.ts` maps:
+  * `GET /active` $\rightarrow$ `getActiveRateCard` in `server/src/controllers/rateCardController.ts`
+  * `POST /simulate` $\rightarrow$ `simulateRate` in `server/src/controllers/rateCardController.ts` $\rightarrow$ `detectZoneForCoordinates` & `calculateOrderPrice`
+  * `GET /` $\rightarrow$ `authenticate` $\rightarrow$ `requireRole(ADMIN)` $\rightarrow$ `getAllRateCards` in `server/src/controllers/rateCardController.ts`
+  * `POST /` $\rightarrow$ `authenticate` $\rightarrow$ `requireRole(ADMIN)` $\rightarrow$ `createRateCard` in `server/src/controllers/rateCardController.ts`
+  * `PUT /:id` $\rightarrow$ `authenticate` $\rightarrow$ `requireRole(ADMIN)` $\rightarrow$ `updateRateCard` in `server/src/controllers/rateCardController.ts`
+  * `POST /seed` $\rightarrow$ `authenticate` $\rightarrow$ `requireRole(ADMIN)` $\rightarrow$ `seedDefaultRateCard` in `server/src/controllers/rateCardController.ts`
+
+
 
 

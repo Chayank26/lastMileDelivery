@@ -23,6 +23,8 @@ This file catalogs every technology, framework, npm package, and infrastructure 
 | **Password Hashing** | `bcryptjs` (`v2.4.3`) | bcryptjs | Pure JavaScript implementation of bcrypt password hashing algorithm. Selected over native C++ `bcrypt` to prevent native build compilation failures across OS environments. |
 | **Authentication Token** | `jsonwebtoken` (`v9.0.2`) | JSON Web Tokens (JWT) | Compact, URL-safe means of representing claims between two parties. Used for stateless HTTP authentication across client SPA and backend API services. |
 | **Pricing Calculation Engine** | Pure TS Module (`rateEngine.ts`) | Pure Functional Engine | Side-effect-free pure mathematical function for deterministic pricing calculations. Eliminates hardcoding and allows identical pricing execution across pre-cost previews, placement endpoints, and rate simulator sandboxes. |
+| **Pricing Sandbox Simulator** | `/api/rates/simulate` | Ephemeral Override Sandbox | RESTful API endpoint allowing real-time rate predictions and margin simulations with live slider overrides without mutating persistent database records. |
+
 
 
 

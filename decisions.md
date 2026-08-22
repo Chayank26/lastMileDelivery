@@ -113,6 +113,23 @@ This file logs every meaningful architectural, technological, and design decisio
   * Standard industry volumetric formula $\frac{L \times B \times H}{5000}$ computes equivalent volumetric mass.
   * Billing on the higher value ensures logistics cost recovery while providing full breakdown transparency (`actualWeightKg`, `volumetricWeightKg`, `billableWeightKg`) to customers before order confirmation.
 
+---
+
+## Phase 6: Rate Card Management API & Admin Pricing Sandbox
+
+### 16. Decision: Ephemeral Rate Parameter Overrides in Pricing Sandbox (`POST /api/rates/simulate`)
+* **Context:** Admins and logistics managers need an interactive sandbox widget to tweak B2B/B2C sliders, base fees, and volumetric divisors ($5000 \to 4000$) to observe margin impact across sample routes without altering live production rate cards.
+* **Why this approach?**
+  * Accepting an optional `rateCardOverrides` payload in `/api/rates/simulate` merges incoming slider parameters over the stored default `RateCard` in memory.
+  * Evaluators can experiment with pricing variations dynamically in the Admin Sandbox without corrupting real customer order pricing.
+
+### 17. Decision: Auto-Enforced Single Default Rate Card Constraint
+* **Context:** Multiple rate cards can exist in the system, but only one active card should serve as the system-wide default.
+* **Why this approach?**
+  * When creating or updating a rate card with `isDefault: true`, the controller atomically executes `RateCard.updateMany({ _id: { $ne: targetId } }, { isDefault: false })`.
+  * Prevents configuration ambiguity when customers request pre-order price previews.
+
+
 
 
 

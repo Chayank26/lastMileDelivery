@@ -10,6 +10,7 @@ import cors from 'cors';
 import { config } from './config/env.js';
 import authRoutes from './routes/authRoutes.js';
 import zoneRoutes from './routes/zoneRoutes.js';
+import rateCardRoutes from './routes/rateCardRoutes.js';
 
 // Initialize core Express app instance
 const app = express();
@@ -35,6 +36,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
  */
 app.use('/api/auth', authRoutes);
 app.use('/api/zones', zoneRoutes);
+app.use('/api/rates', rateCardRoutes);
 
 /**
  * Base Diagnostics & Health Routes
