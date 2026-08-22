@@ -238,6 +238,43 @@ This file details the runtime flow, entrypoints, sequence of execution, and call
   * `GET /:id` $\rightarrow$ `authenticate` $\rightarrow$ `getOrderById` in `server/src/controllers/orderController.ts`
   * `GET /track/:trackingId` $\rightarrow$ `trackOrderByTrackingId` in `server/src/controllers/orderController.ts`
 
+---
+
+## Phase 8 Execution & Agent Auto-Assignment Flow
+
+```
+[HTTP Request: POST /api/orders/:id/auto-assign]
+        │
+        ▼
+[Router: server/src/routes/orderRoutes.ts]
+        │
+        ▼
+[Controller: autoAssignOrder in server/src/controllers/orderController.ts]
+        │
+        ▼
+[ACID Session Transaction: runInTransaction in server/src/config/db.ts]
+        │
+        ▼
+[Engine: executeAutoAssignment() in server/src/services/assignmentEngine.ts]
+        │
+        ├── 1. Queries active AgentProfiles (`server/src/models/AgentProfile.ts`)
+        ├── 2. Filters out agents where `currentActiveOrderCount >= maxConcurrentOrders` or status is `OFFLINE` / `MAX_CAPACITY`
+        ├── 3. Calculates Haversine distance (`calculateHaversineDistanceKm`) from agent location to pickup location
+        ├── 4. Selects optimal agent (minimum distance with zone bonus score)
+        ├── 5. Increments `currentActiveOrderCount` (transitions to `MAX_CAPACITY` if limit reached)
+        ├── 6. Binds `assignedAgent` and `assignedAt` on `Order` (`server/src/models/Order.ts`)
+        └── 7. Appends immutable `OrderAuditLog` entry (`action: AGENT_ASSIGNED`)
+```
+
+### Module Call Graph (Phase 8)
+* `server/src/routes/orderRoutes.ts` maps:
+  * `POST /:id/auto-assign` $\rightarrow$ `authenticate` $\rightarrow$ `requireRole(ADMIN)` $\rightarrow$ `autoAssignOrder` in `server/src/controllers/orderController.ts` $\rightarrow$ `executeAutoAssignment` in `server/src/services/assignmentEngine.ts`
+  * `POST /:id/assign` $\rightarrow$ `authenticate` $\rightarrow$ `requireRole(ADMIN)` $\rightarrow$ `manualAssignOrder` in `server/src/controllers/orderController.ts`
+* `server/src/routes/agentRoutes.ts` maps:
+  * `GET /` $\rightarrow$ `authenticate` $\rightarrow$ `requireRole(ADMIN)` $\rightarrow$ `getAllAgents` in `server/src/controllers/agentController.ts`
+  * `PUT /status` $\rightarrow$ `authenticate` $\rightarrow$ `requireRole(AGENT, ADMIN)` $\rightarrow$ `updateAgentStatus` in `server/src/controllers/agentController.ts`
+
+
 
 
 

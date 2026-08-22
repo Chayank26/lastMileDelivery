@@ -12,6 +12,7 @@ import authRoutes from './routes/authRoutes.js';
 import zoneRoutes from './routes/zoneRoutes.js';
 import rateCardRoutes from './routes/rateCardRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
+import agentRoutes from './routes/agentRoutes.js';
 
 // Initialize core Express app instance
 const app = express();
@@ -39,6 +40,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/zones', zoneRoutes);
 app.use('/api/rates', rateCardRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/agents', agentRoutes);
 
 /**
  * Base Diagnostics & Health Routes

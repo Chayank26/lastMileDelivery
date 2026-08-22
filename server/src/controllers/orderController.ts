@@ -11,7 +11,9 @@ import { Zone } from '../models/Zone.js';
 import { RateCard } from '../models/RateCard.js';
 import { OrderAuditLog } from '../models/OrderAuditLog.js';
 import { User, UserRole } from '../models/User.js';
+import { AgentProfile, AgentStatus } from '../models/AgentProfile.js';
 import { calculateOrderPrice } from '../services/rateEngine.js';
+import { executeAutoAssignment } from '../services/assignmentEngine.js';
 import { detectZoneForCoordinates } from '../utils/geo.js';
 import { generateTrackingId } from '../utils/trackingId.js';
 import { runInTransaction } from '../config/db.js';
@@ -317,3 +319,147 @@ export const trackOrderByTrackingId = async (req: Request, res: Response): Promi
     });
   }
 };
+
+/**
+ * Controller: Trigger Intelligent Nearest-Neighbor Auto-Assignment (`POST /api/orders/:id/auto-assign`).
+ * Finds geographically closest available agent within capacity bounds and assigns order atomically.
+ */
+export const autoAssignOrder = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const actor = req.user!;
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      res.status(404).json({ error: 'Not Found', message: 'Order not found.' });
+      return;
+    }
+
+    // Execute nearest-neighbor assignment engine inside ACID session transaction
+    const result = await runInTransaction(async (session) => {
+      const liveOrder = await Order.findById(order._id).session(session);
+      if (!liveOrder) throw new Error('Order not found in transaction session.');
+      return executeAutoAssignment(liveOrder, actor, session);
+    });
+
+    const updatedOrder = await Order.findById(order._id)
+      .populate('customer', 'name email phone')
+      .populate('assignedAgent', 'name phone');
+
+    res.status(200).json({
+      message: result.message,
+      distanceKm: result.distanceKm,
+      order: updatedOrder,
+    });
+  } catch (error: any) {
+    res.status(422).json({
+      error: 'Unprocessable Entity',
+      message: error.message || 'Auto-assignment failed.',
+    });
+  }
+};
+
+/**
+ * Controller: Manual Agent Assignment Override (`POST /api/orders/:id/assign`).
+ * Allows Admin to directly assign a specific delivery agent to an order.
+ */
+export const manualAssignOrder = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const actor = req.user!;
+    const { agentId } = req.body;
+
+    if (!agentId) {
+      res.status(400).json({ error: 'Bad Request', message: 'Target agentId is required.' });
+      return;
+    }
+
+    const targetUser = await User.findById(agentId);
+    if (!targetUser || targetUser.role !== UserRole.AGENT) {
+      res.status(400).json({ error: 'Bad Request', message: 'Target user is not a valid delivery agent.' });
+      return;
+    }
+
+    const resultOrder = await runInTransaction(async (session) => {
+      const order = await Order.findById(req.params.id).session(session);
+      if (!order) throw new Error('Order not found.');
+
+      let agentProfile = await AgentProfile.findOne({ user: agentId }).session(session);
+
+      if (!agentProfile) {
+        // Auto-seed profile if missing
+        const createdProfiles = await AgentProfile.create(
+          [
+            {
+              user: agentId,
+              status: AgentStatus.IDLE,
+              maxConcurrentOrders: 3,
+              currentActiveOrderCount: 0,
+              currentLocation: { type: 'Point', coordinates: [77.0266, 28.4595] },
+            },
+          ],
+          { session }
+        );
+        agentProfile = createdProfiles[0];
+      }
+
+      if (!agentProfile) {
+        throw new Error('Failed to load or initialize target agent profile.');
+      }
+
+      // Check capacity bound
+      if (agentProfile.currentActiveOrderCount >= agentProfile.maxConcurrentOrders) {
+        throw new Error(`Agent ${targetUser.name} has reached maximum concurrent order capacity (${agentProfile.maxConcurrentOrders}).`);
+      }
+
+      agentProfile.currentActiveOrderCount += 1;
+      if (agentProfile.currentActiveOrderCount >= agentProfile.maxConcurrentOrders) {
+        agentProfile.status = AgentStatus.MAX_CAPACITY;
+      } else {
+        agentProfile.status = AgentStatus.EN_ROUTE_PICKUP;
+      }
+      await agentProfile.save({ session });
+
+      const previousAgent = order.assignedAgent;
+      order.assignedAgent = targetUser._id;
+      order.assignedAt = new Date();
+      await order.save({ session });
+
+      await OrderAuditLog.create(
+        [
+          {
+            orderId: order._id,
+            previousStatus: order.status,
+            newStatus: order.status,
+            actorId: actor._id,
+            actorRole: actor.role,
+            action: 'AGENT_ASSIGNED',
+            payloadSnapshot: {
+              assignedAgentId: targetUser._id,
+              agentName: targetUser.name,
+              assignmentType: 'MANUAL_OVERRIDE',
+              previousAgentId: previousAgent,
+            },
+            timestamp: new Date(),
+          },
+        ],
+        { session }
+      );
+
+      return order;
+    });
+
+    const populatedOrder = await Order.findById(resultOrder._id)
+      .populate('customer', 'name email phone')
+      .populate('assignedAgent', 'name phone');
+
+    res.status(200).json({
+      message: `Manually assigned order to agent ${targetUser.name}`,
+      order: populatedOrder,
+    });
+  } catch (error: any) {
+    res.status(422).json({
+      error: 'Unprocessable Entity',
+      message: error.message,
+    });
+  }
+};
+

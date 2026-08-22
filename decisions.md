@@ -151,6 +151,28 @@ This file logs every meaningful architectural, technological, and design decisio
   * Delivery Agents are automatically filtered to `assignedAgent: req.user._id`.
   * Admins receive full visibility with multi-filter query params (`status`, `zoneId`, `agentId`, `orderType`).
 
+---
+
+## Phase 8: Haversine Nearest-Neighbor Agent Auto-Assignment Engine (ACID Protected)
+
+### 21. Decision: Greedy Haversine Nearest-Neighbor Solver with Primary Zone Bias
+* **Context:** Logistics dispatching requires auto-assigning orders to the optimal available delivery agent.
+* **Why this approach?**
+  * Haversine distance (`calculateHaversineDistanceKm`) measures exact spherical distance from agent location to pickup location.
+  * Adding a 2.0 km bonus score for agents assigned to the order's primary pickup zone prioritizes local zone familiarity before falling back to outer agents.
+
+### 22. Decision: Concurrency-Bounded Agent State Machine (`MAX_CAPACITY`)
+* **Context:** Overloading a single delivery agent with 10 packages leads to delayed customer deliveries.
+* **Why this approach?**
+  * Enforces `maxConcurrentOrders` limit (e.g. 3 active shipments).
+  * Automatically transitions agent status to `MAX_CAPACITY` when limit is reached, filtering them out of future auto-assignment solver queries until current deliveries complete.
+
+### 23. Decision: ACID Session Lock for Agent Assignment to Prevent Race Conditions
+* **Context:** Two simultaneous order placements or admin triggers could attempt to assign the same agent at `currentActiveOrderCount = 2`, driving count to 4 (exceeding max capacity 3).
+* **Why this approach?**
+  * Executing assignment inside `runInTransaction(session => ...)` checks `currentActiveOrderCount < maxConcurrentOrders` under database transaction isolation, preventing duplicate concurrent agent assignments.
+
+
 
 
 

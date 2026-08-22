@@ -25,6 +25,8 @@ This file catalogs every technology, framework, npm package, and infrastructure 
 | **Pricing Calculation Engine** | Pure TS Module (`rateEngine.ts`) | Pure Functional Engine | Side-effect-free pure mathematical function for deterministic pricing calculations. Eliminates hardcoding and allows identical pricing execution across pre-cost previews, placement endpoints, and rate simulator sandboxes. |
 | **Pricing Sandbox Simulator** | `/api/rates/simulate` | Ephemeral Override Sandbox | RESTful API endpoint allowing real-time rate predictions and margin simulations with live slider overrides without mutating persistent database records. |
 | **Order Engine & Tracking** | `/api/orders` | ACID Dual-Write Order Engine | RESTful order lifecycle manager with Turf.js zone auto-detection, pure rate engine execution, atomic MongoDB ACID session dual-writes, and public tracking timeline lookups. |
+| **Agent Auto-Assignment Engine** | `assignmentEngine.ts` | Greedy Haversine Assignment | Nearest-neighbor agent matching algorithm combining Turf.js spherical distance, primary zone bias, concurrency limits (`maxConcurrentOrders`), and ACID session locking to prevent race conditions. |
+
 
 
 

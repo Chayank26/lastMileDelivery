@@ -11,8 +11,11 @@ import {
   getAllOrders,
   getOrderById,
   trackOrderByTrackingId,
+  autoAssignOrder,
+  manualAssignOrder,
 } from '../controllers/orderController.js';
-import { authenticate } from '../middleware/auth.js';
+import { authenticate, requireRole } from '../middleware/auth.js';
+import { UserRole } from '../models/User.js';
 
 const router = Router();
 
@@ -25,5 +28,9 @@ router.use(authenticate);
 router.post('/', createOrder);
 router.get('/', getAllOrders);
 router.get('/:id', getOrderById);
+
+// Agent Assignment Endpoints (Admin only)
+router.post('/:id/auto-assign', requireRole(UserRole.ADMIN), autoAssignOrder);
+router.post('/:id/assign', requireRole(UserRole.ADMIN), manualAssignOrder);
 
 export default router;
