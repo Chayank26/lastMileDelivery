@@ -24,9 +24,9 @@ This file details the runtime flow, entrypoints, sequence of execution, and call
 ```
 
 ### Entry Points
-1. **Server Entry Point:** [server/src/index.ts](file:///Users/chayankbhargava/Projects/lastMileDelivery/server/src/index.ts)
+1. **Server Entry Point:** `server/src/index.ts`
    * Execution Order: `dotenv.config` $\rightarrow$ `config/env.ts` $\rightarrow$ `app.ts` $\rightarrow$ `http.createServer` $\rightarrow$ `listen(5000)`
-2. **Client Entry Point:** [client/src/main.tsx](file:///Users/chayankbhargava/Projects/lastMileDelivery/client/src/main.tsx)
+2. **Client Entry Point:** `client/src/main.tsx`
    * Execution Order: `index.html` $\rightarrow$ `main.tsx` $\rightarrow$ `App.tsx`
 
 ### Function & Module Call Graph (Phase 1)
@@ -44,10 +44,10 @@ This file details the runtime flow, entrypoints, sequence of execution, and call
 ## Phase 2 Execution & Database Architecture Flow
 
 ```
-[Server Entrypoint: index.ts]
+[Server Entrypoint: server/src/index.ts]
         │
         ▼
-[connectDatabase(): config/db.ts]
+[connectDatabase(): server/src/config/db.ts]
         │
         ├── Mongoose Connects to MONGODB_URI
         ├── Registers Connection Lifecycle Events (connected, error, disconnected)
@@ -64,12 +64,11 @@ This file details the runtime flow, entrypoints, sequence of execution, and call
 ```
 
 ### Database & Model Dependencies (Phase 2)
-1. **[User.ts](file:///Users/chayankbhargava/Projects/lastMileDelivery/server/src/models/User.ts):**
+1. **`server/src/models/User.ts`:**
    * Referenced by `Order.ts` (`customer`, `createdByAdmin`, `assignedAgent`) and `AgentProfile.ts` (`user`).
-2. **[Zone.ts](file:///Users/chayankbhargava/Projects/lastMileDelivery/server/src/models/Zone.ts):**
+2. **`server/src/models/Zone.ts`:**
    * Indexed via `2dsphere` spatial boundary. Referenced by `Order.ts` (`pickupZone`, `dropZone`) and `AgentProfile.ts` (`assignedZone`).
-3. **[AgentProfile.ts](file:///Users/chayankbhargava/Projects/lastMileDelivery/server/src/models/AgentProfile.ts):**
+3. **`server/src/models/AgentProfile.ts`:**
    * Indexed via `2dsphere` on `currentLocation`. Enforces concurrency bounds (`currentActiveOrderCount <= maxConcurrentOrders`).
-4. **[OrderAuditLog.ts](file:///Users/chayankbhargava/Projects/lastMileDelivery/server/src/models/OrderAuditLog.ts):**
+4. **`server/src/models/OrderAuditLog.ts`:**
    * Append-only ledger written whenever an `Order` status transitions.
-
