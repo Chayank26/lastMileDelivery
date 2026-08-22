@@ -116,3 +116,34 @@ This file details the runtime flow, entrypoints, sequence of execution, and call
   * `POST /demo-login` $\rightarrow$ `demoLogin` in `server/src/controllers/authController.ts`
   * `GET /me` $\rightarrow$ `authenticate` middleware $\rightarrow$ `getMe` in `server/src/controllers/authController.ts`
 
+---
+
+## Phase 4 Execution & Geospatial Zone Detection Flow
+
+```
+[HTTP Request: POST /api/zones/detect]
+        │
+        ▼
+[Router: server/src/routes/zoneRoutes.ts]
+        │
+        ▼
+[Controller: detectZoneByPoint in server/src/controllers/zoneController.ts]
+        │
+        ├── Fetches active Zone document boundaries from MongoDB (`server/src/models/Zone.ts`)
+        ├── Invokes `detectZoneForCoordinates(lng, lat, activeZones)` in `server/src/utils/geo.ts`
+        │     │
+        │     ├── Constructs Turf.js Point feature: `turf.point([lng, lat])`
+        │     ├── Loops through active zones and constructs Turf.js Polygon features
+        │     └── Evaluates `turf.booleanPointInPolygon(point, polygon)`
+        │
+        └── Returns HTTP 200 { isUnzoned: boolean, matchedZone: { id, name, code, colorHex } }
+```
+
+### Module Call Graph (Phase 4)
+* `server/src/routes/zoneRoutes.ts` maps:
+  * `GET /` $\rightarrow$ `getAllZones` in `server/src/controllers/zoneController.ts`
+  * `POST /detect` $\rightarrow$ `detectZoneByPoint` in `server/src/controllers/zoneController.ts` $\rightarrow$ `detectZoneForCoordinates` in `server/src/utils/geo.ts`
+  * `POST /` $\rightarrow$ `authenticate` $\rightarrow$ `requireRole(ADMIN)` $\rightarrow$ `createZone` in `server/src/controllers/zoneController.ts` $\rightarrow$ `validateGeoJsonPolygon` in `server/src/utils/geo.ts`
+  * `POST /seed` $\rightarrow$ `authenticate` $\rightarrow$ `requireRole(ADMIN)` $\rightarrow$ `seedSampleZones` in `server/src/controllers/zoneController.ts`
+
+

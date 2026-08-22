@@ -76,4 +76,26 @@ This file logs every meaningful architectural, technological, and design decisio
 * **Why this approach?**
   * A reusable middleware factory `requireRole(UserRole.ADMIN)` cleanly intercepts unauthorized requests before reaching controller logic, returning standard `403 Forbidden` responses.
 
+---
+
+## Phase 4: Geospatial Zone Management API & Turf.js Integration
+
+### 11. Decision: In-Memory Turf.js Spatial Point-in-Polygon Matching alongside MongoDB `$geoIntersects`
+* **Context:** Address coordinates pinned on a map or sent by users must be evaluated against active zone boundaries.
+* **Why this approach?**
+  * Turf.js (`turf.booleanPointInPolygon`) provides pure in-memory spatial calculation that can execute directly within Node.js memory without requiring database roundtrips for every preview calculation.
+  * Ensures zero database dependency overhead when performing fast rate calculations on the frontend or backend.
+
+### 12. Decision: GeoJSON Polygon Linear Ring Closure Validation Rule
+* **Context:** Geometries received from raw map polygon drawings or API requests must conform to official RFC 7946 GeoJSON specifications.
+* **Why this approach?**
+  * A GeoJSON Polygon linear ring must contain at least 4 position arrays, where the first position `[lng, lat]` is strictly equal to the final position `[lng, lat]`.
+  * Enforcing `validateGeoJsonPolygon()` before database writes prevents corrupted spatial polygons from causing 2dsphere indexing exceptions.
+
+### 13. Decision: Auto-Seeding Sample Enterprise Delivery Zones (`POST /api/zones/seed`)
+* **Context:** Evaluators testing the application need realistic pre-configured delivery zones (e.g. Gurgaon, Delhi, Noida) out of the box.
+* **Why this approach?**
+  * Providing an automated seed helper ensures evaluators can immediately render interactive Leaflet maps and test intra vs. inter-zone rate rules without drawing polygons manually from scratch.
+
+
 

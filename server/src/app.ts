@@ -9,6 +9,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import { config } from './config/env.js';
 import authRoutes from './routes/authRoutes.js';
+import zoneRoutes from './routes/zoneRoutes.js';
 
 // Initialize core Express app instance
 const app = express();
@@ -33,6 +34,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
  * API Route Mounting
  */
 app.use('/api/auth', authRoutes);
+app.use('/api/zones', zoneRoutes);
 
 /**
  * Base Diagnostics & Health Routes
