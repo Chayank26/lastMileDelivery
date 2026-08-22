@@ -11,6 +11,7 @@ import { config } from './config/env.js';
 import authRoutes from './routes/authRoutes.js';
 import zoneRoutes from './routes/zoneRoutes.js';
 import rateCardRoutes from './routes/rateCardRoutes.js';
+import orderRoutes from './routes/orderRoutes.js';
 
 // Initialize core Express app instance
 const app = express();
@@ -37,6 +38,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/api/auth', authRoutes);
 app.use('/api/zones', zoneRoutes);
 app.use('/api/rates', rateCardRoutes);
+app.use('/api/orders', orderRoutes);
 
 /**
  * Base Diagnostics & Health Routes

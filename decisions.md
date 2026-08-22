@@ -129,6 +129,29 @@ This file logs every meaningful architectural, technological, and design decisio
   * When creating or updating a rate card with `isDefault: true`, the controller atomically executes `RateCard.updateMany({ _id: { $ne: targetId } }, { isDefault: false })`.
   * Prevents configuration ambiguity when customers request pre-order price previews.
 
+---
+
+## Phase 7: Order Creation API with ACID & Initial Status Assignment
+
+### 18. Decision: Atomic Dual-Write Session Transaction for Order & Audit Log
+* **Context:** Creating an order must simultaneously write the primary `Order` entity and seed its first `OrderAuditLog` event record (`action: 'ORDER_CREATED'`).
+* **Why this approach?**
+  * Wrapping both write operations inside `runInTransaction(session => ...)` ensures that if audit log creation fails or database connection drops mid-request, the order creation is fully rolled back.
+  * Guarantees 100% data integrity between live order states and immutable event history ledger.
+
+### 19. Decision: Public Collision-Resistant `trackingId` Format (`ORD-YYYY-XXXXXX`)
+* **Context:** Customers and evaluators need a clean, human-readable identifier to look up live shipment status without exposing database internal MongoDB ObjectIDs.
+* **Why this approach?**
+  * Combining year prefix `ORD-2026-` with 6 uppercase crypto-random hexadecimal characters creates non-sequential, memorable tracking codes suitable for public tracking URLs (`/track/ORD-2026-K92A8F`).
+
+### 20. Decision: Role-Scoped Query Filtering in Order Search Endpoint
+* **Context:** `GET /api/orders` is used by Customers, Delivery Agents, and Admins.
+* **Why this approach?**
+  * Customers are automatically filtered to `customer: req.user._id`.
+  * Delivery Agents are automatically filtered to `assignedAgent: req.user._id`.
+  * Admins receive full visibility with multi-filter query params (`status`, `zoneId`, `agentId`, `orderType`).
+
+
 
 
 

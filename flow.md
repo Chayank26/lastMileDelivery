@@ -205,6 +205,40 @@ This file details the runtime flow, entrypoints, sequence of execution, and call
   * `PUT /:id` $\rightarrow$ `authenticate` $\rightarrow$ `requireRole(ADMIN)` $\rightarrow$ `updateRateCard` in `server/src/controllers/rateCardController.ts`
   * `POST /seed` $\rightarrow$ `authenticate` $\rightarrow$ `requireRole(ADMIN)` $\rightarrow$ `seedDefaultRateCard` in `server/src/controllers/rateCardController.ts`
 
+---
+
+## Phase 7 Execution & Order Creation Flow
+
+```
+[HTTP Request: POST /api/orders]
+        │
+        ▼
+[Middleware: authenticate in server/src/middleware/auth.ts]
+        │
+        ▼
+[Controller: createOrder in server/src/controllers/orderController.ts]
+        │
+        ├── Detects Pickup & Drop Zones via `detectZoneForCoordinates` (`server/src/utils/geo.ts`)
+        ├── Fetches active default `RateCard` from MongoDB (`server/src/models/RateCard.ts`)
+        ├── Evaluates rate formula via `calculateOrderPrice()` (`server/src/services/rateEngine.ts`)
+        ├── Generates tracking code: `generateTrackingId()` (`server/src/utils/trackingId.ts`)
+        │
+        ▼
+[ACID Transaction: runInTransaction in server/src/config/db.ts]
+        │
+        ├── 1. Creates `Order` document (status: 'CREATED') (`server/src/models/Order.ts`)
+        ├── 2. Writes append-only `OrderAuditLog` entry (`server/src/models/OrderAuditLog.ts`)
+        └── Commits MongoDB session transaction
+```
+
+### Module Call Graph (Phase 7)
+* `server/src/routes/orderRoutes.ts` maps:
+  * `POST /` $\rightarrow$ `authenticate` $\rightarrow$ `createOrder` in `server/src/controllers/orderController.ts` $\rightarrow$ `detectZoneForCoordinates`, `calculateOrderPrice`, `runInTransaction`
+  * `GET /` $\rightarrow$ `authenticate` $\rightarrow$ `getAllOrders` in `server/src/controllers/orderController.ts`
+  * `GET /:id` $\rightarrow$ `authenticate` $\rightarrow$ `getOrderById` in `server/src/controllers/orderController.ts`
+  * `GET /track/:trackingId` $\rightarrow$ `trackOrderByTrackingId` in `server/src/controllers/orderController.ts`
+
+
 
 
 
