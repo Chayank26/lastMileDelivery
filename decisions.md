@@ -188,6 +188,29 @@ This file logs every meaningful architectural, technological, and design decisio
   * The transition controller automatically decrements `currentActiveOrderCount` on `AgentProfile`.
   * If the agent was previously locked in `MAX_CAPACITY` status, the controller automatically restores their status to `EN_ROUTE_PICKUP` or `IDLE`, bringing them back into the auto-assignment pool.
 
+---
+
+## Phase 10: Dynamic Failure Diagnostics & Smart Reschedule Workflow
+
+### 26. Decision: Targeted Reason-Code Diagnostic Reschedule Actions
+* **Context:** Deliveries fail for distinct operational reasons (`INCORRECT_ADDRESS`, `CASH_UNAVAILABLE_COD`, `CUSTOMER_UNAVAILABLE`, `ACCESS_RESTRICTED`).
+* **Why this approach?**
+  * Generic "try again" reschedule buttons force repeated delivery failures.
+  * Offering targeted resolution inputs (e.g. address correction for `INCORRECT_ADDRESS`, switching COD to Prepaid for `CASH_UNAVAILABLE_COD`) directly resolves the root cause before the next attempt.
+
+### 27. Decision: Dynamic Re-Zoning & Rate Card Re-Evaluation on Address Correction
+* **Context:** When a customer updates their drop address during a reschedule, the new location may belong to a different delivery zone or switch from intra-zone to inter-zone.
+* **Why this approach?**
+  * Automatically re-running Turf.js `detectZoneForCoordinates` updates `order.dropZone`.
+  * Re-evaluating `calculateOrderPrice()` guarantees accurate billing updates (`order.priceBreakdown`) if zone boundaries changed.
+
+### 28. Decision: Automatic Agent Re-Assignment on Reschedule Commitment
+* **Context:** When an order is rescheduled for a future date/time, the previous agent may be off-duty or in a different area.
+* **Why this approach?**
+  * Rescheduling un-binds the previous agent and automatically invokes `executeAutoAssignment()` within the session transaction.
+  * Instantly queues the order with a fresh, available agent and appends attempt records to `order.rescheduleHistory`.
+
+
 
 
 

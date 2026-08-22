@@ -14,6 +14,7 @@ import {
   autoAssignOrder,
   manualAssignOrder,
   updateOrderStatus,
+  rescheduleOrder,
 } from '../controllers/orderController.js';
 import { authenticate, requireRole } from '../middleware/auth.js';
 import { UserRole } from '../models/User.js';
@@ -29,6 +30,9 @@ router.use(authenticate);
 router.post('/', createOrder);
 router.get('/', getAllOrders);
 router.get('/:id', getOrderById);
+
+// Reschedule Failed Delivery Endpoint (Customer or Admin)
+router.post('/:id/reschedule', rescheduleOrder);
 
 // Order Status Lifecycle State Transition Endpoint (Agent or Admin)
 router.patch('/:id/status', requireRole(UserRole.AGENT, UserRole.ADMIN), updateOrderStatus);

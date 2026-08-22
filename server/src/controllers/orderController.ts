@@ -584,4 +584,179 @@ export const updateOrderStatus = async (req: Request, res: Response): Promise<vo
   }
 };
 
+/**
+ * Controller: Dynamic Failure Resolution & Smart Reschedule Flow (`POST /api/orders/:id/reschedule`).
+ * Allows Customer or Admin to resolve a FAILED delivery attempt by providing new delivery date,
+ * correcting drop address coordinates (re-triggering zone detection & rate calculation),
+ * switching COD to Prepaid, or adding access notes, followed by automatic agent re-assignment.
+ */
+export const rescheduleOrder = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const actor = req.user!;
+    const {
+      rescheduledDate,
+      updatedDropAddress,
+      switchPaymentToPrepaid,
+      notes,
+    } = req.body;
+
+    if (!rescheduledDate) {
+      res.status(400).json({
+        error: 'Bad Request',
+        message: 'Rescheduled delivery date is required.',
+      });
+      return;
+    }
+
+    const orderId = req.params.id;
+
+    const updatedOrder = await runInTransaction(async (session) => {
+      const order = await Order.findById(orderId).session(session);
+
+      if (!order) {
+        throw new Error('Order not found.');
+      }
+
+      // Check authorization: Customer can only reschedule their own order
+      if (
+        actor.role === UserRole.CUSTOMER &&
+        order.customer.toString() !== actor._id.toString()
+      ) {
+        throw new Error('Forbidden: You can only reschedule your own orders.');
+      }
+
+      // Must be in FAILED or RESCHEDULED state
+      if (![OrderStatus.FAILED, OrderStatus.RESCHEDULED].includes(order.status)) {
+        throw new Error(`Cannot reschedule an order with status '${order.status}'. Order must be marked FAILED first.`);
+      }
+
+      const previousAgentId = order.assignedAgent;
+      let priceRecalculated = false;
+
+      // 1. Handle INCORRECT_ADDRESS Resolution: Update drop address & re-detect zone
+      if (updatedDropAddress && updatedDropAddress.location?.coordinates) {
+        const dropLng = Number(updatedDropAddress.location.coordinates[0]);
+        const dropLat = Number(updatedDropAddress.location.coordinates[1]);
+
+        const activeZones = await Zone.find({ isActive: true }).session(session);
+        const newDropZone = detectZoneForCoordinates(dropLng, dropLat, activeZones);
+
+        order.dropAddress = {
+          street: updatedDropAddress.street || order.dropAddress.street,
+          city: updatedDropAddress.city || order.dropAddress.city,
+          pincode: updatedDropAddress.pincode || order.dropAddress.pincode,
+          landmark: updatedDropAddress.landmark || order.dropAddress.landmark,
+          location: {
+            type: 'Point',
+            coordinates: [dropLng, dropLat],
+          },
+        };
+
+        order.dropZone = newDropZone ? (newDropZone._id as any) : undefined;
+        priceRecalculated = true;
+      }
+
+      // 2. Handle CASH_UNAVAILABLE_COD Resolution: Switch payment method to PREPAID
+      if (switchPaymentToPrepaid && order.paymentType === PaymentType.COD) {
+        order.paymentType = PaymentType.PREPAID;
+        order.codAmount = 0;
+        priceRecalculated = true;
+      }
+
+      // 3. Re-evaluate Rate Engine if address or payment type was updated
+      if (priceRecalculated) {
+        const rateCard = await RateCard.findById(order.rateCardApplied).session(session);
+        if (rateCard) {
+          const newPriceBreakdown = calculateOrderPrice({
+            dimensions: order.dimensions,
+            actualWeightKg: order.actualWeightKg,
+            orderType: order.orderType,
+            paymentType: order.paymentType,
+            codAmount: order.codAmount,
+            pickupZoneId: order.pickupZone ? order.pickupZone.toString() : null,
+            dropZoneId: order.dropZone ? order.dropZone.toString() : null,
+            rateCard,
+          });
+          order.priceBreakdown = newPriceBreakdown;
+        }
+      }
+
+      const previousStatus = order.status;
+      order.status = OrderStatus.RESCHEDULED;
+
+      // Un-bind previous agent for fresh re-assignment
+      order.assignedAgent = undefined;
+
+      // 4. Trigger Automatic Re-Assignment to Available Agent
+      let newAgentId: any = undefined;
+      try {
+        const assignResult = await executeAutoAssignment(order, actor, session);
+        newAgentId = assignResult.assignedAgent.user._id;
+      } catch (assignError: any) {
+        console.warn('⚠️ Auto-reassignment on reschedule unassigned:', assignError.message);
+      }
+
+      // 5. Append entry to reschedule history array
+      const attemptNumber = (order.rescheduleHistory?.length || 0) + 1;
+      order.rescheduleHistory.push({
+        attemptNumber,
+        rescheduledDate: new Date(rescheduledDate),
+        reasonCode: order.failureReasonCode || FailureReasonCode.OTHER,
+        notes: notes || undefined,
+        previousAgentId: previousAgentId ? (previousAgentId as any) : undefined,
+        newAgentId: newAgentId ? (newAgentId as any) : undefined,
+        createdAt: new Date(),
+      });
+
+      await order.save({ session });
+
+      // 6. Write immutable event audit log
+      await OrderAuditLog.create(
+        [
+          {
+            orderId: order._id,
+            previousStatus,
+            newStatus: OrderStatus.RESCHEDULED,
+            actorId: actor._id,
+            actorRole: actor.role,
+            action: 'FAILED_RESCHEDULED',
+            payloadSnapshot: {
+              attemptNumber,
+              rescheduledDate,
+              reasonCode: order.failureReasonCode,
+              reassignedAgentId: newAgentId,
+              priceRecalculated,
+              updatedPaymentType: order.paymentType,
+              notes,
+            },
+            ipAddress: req.ip || req.socket.remoteAddress,
+            userAgent: req.get('user-agent'),
+            timestamp: new Date(),
+          },
+        ],
+        { session }
+      );
+
+      return order;
+    });
+
+    const populatedOrder = await Order.findById(updatedOrder._id)
+      .populate('customer', 'name email phone')
+      .populate('assignedAgent', 'name phone')
+      .populate('pickupZone', 'name code colorHex')
+      .populate('dropZone', 'name code colorHex');
+
+    res.status(200).json({
+      message: 'Order rescheduled successfully and queued for re-delivery attempt.',
+      order: populatedOrder,
+    });
+  } catch (error: any) {
+    res.status(422).json({
+      error: 'Unprocessable Entity',
+      message: error.message,
+    });
+  }
+};
+
+
 

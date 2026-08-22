@@ -303,6 +303,38 @@ This file details the runtime flow, entrypoints, sequence of execution, and call
 * `server/src/routes/orderRoutes.ts` maps:
   * `PATCH /:id/status` $\rightarrow$ `authenticate` $\rightarrow$ `requireRole(AGENT, ADMIN)` $\rightarrow$ `updateOrderStatus` in `server/src/controllers/orderController.ts` $\rightarrow$ `isValidStatusTransition` in `server/src/utils/stateMachine.ts`
 
+---
+
+## Phase 10 Execution & Smart Reschedule Flow
+
+```
+[HTTP Request: POST /api/orders/:id/reschedule]
+        │
+        ▼
+[Middleware: authenticate in server/src/middleware/auth.ts]
+        │
+        ▼
+[Controller: rescheduleOrder in server/src/controllers/orderController.ts]
+        │
+        ├── 1. Verifies order is in FAILED or RESCHEDULED status
+        ├── 2. If updatedDropAddress provided: Runs Turf.js re-zoning (`detectZoneForCoordinates`)
+        ├── 3. If switchPaymentToPrepaid requested: Zeroes COD surcharge
+        ├── 4. If address/payment changed: Re-evaluates Rate Engine (`calculateOrderPrice()`)
+        │
+        ▼
+[ACID Session Transaction: runInTransaction in server/src/config/db.ts]
+        │
+        ├── 1. Transitions order status: `FAILED` ──► `RESCHEDULED` (`server/src/models/Order.ts`)
+        ├── 2. Triggers agent auto-assignment (`executeAutoAssignment()`) to assign new agent
+        ├── 3. Appends attempt entry to `order.rescheduleHistory` array
+        └── 4. Writes immutable event audit log (`action: FAILED_RESCHEDULED`)
+```
+
+### Module Call Graph (Phase 10)
+* `server/src/routes/orderRoutes.ts` maps:
+  * `POST /:id/reschedule` $\rightarrow$ `authenticate` $\rightarrow$ `rescheduleOrder` in `server/src/controllers/orderController.ts` $\rightarrow$ `detectZoneForCoordinates`, `calculateOrderPrice`, `executeAutoAssignment`
+
+
 
 
 
