@@ -1,19 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Space+Grotesk:wght@500;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   body {
-    font-family: 'Inter', sans-serif;
-    background-color: #09090b;
-    color: #f4f4f5;
+    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: #f4f4f6;
+    color: #000000;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
   }
 }
 
-/* Custom Leaflet Dark Mode Tiles & Map Fixes */
+/* Technical Blueprint Dot Grid Background Pattern */
+.bg-grid-pattern {
+  background-color: #f4f4f6;
+  background-image: radial-gradient(#a1a1aa 1.2px, transparent 1.2px);
+  background-size: 18px 18px;
+}
+
+/* Neo-Brutalist Box Shadow Utility */
+.neo-shadow {
+  box-shadow: 4px 4px 0px 0px #000000;
+}
+
+.neo-shadow-sm {
+  box-shadow: 2px 2px 0px 0px #000000;
+}
+
+.neo-shadow-lg {
+  box-shadow: 6px 6px 0px 0px #000000;
+}
+
+.neo-shadow-blue {
+  box-shadow: 4px 4px 0px 0px #0052FF;
+}
+
+/* Custom Leaflet Map Styling for Blueprint Theme */
 .leaflet-container {
   width: 100%;
   height: 100%;
-  border-radius: 0.5rem;
-  background-color: #121215;
+  border-radius: 0px;
+  background-color: #f4f4f6;
+  border: 2px solid #000000;
+}
+
+/* Leaflet Popup Brutalist Overrides */
+.leaflet-popup-content-wrapper {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+  box-shadow: 3px 3px 0px 0px #000000 !important;
+  border-radius: 0px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.leaflet-popup-tip {
+  background: #000000 !important;
 }

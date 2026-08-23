@@ -1,8 +1,10 @@
 /**
- * Rate Sandbox & Pricing Simulator Page
- * --------------------------------------
- * Interactive playground allowing users to adjust parcel dimensions, weights,
- * order types, COD parameters, and map pin locations to test live rate engine calculations.
+ * Rate Sandbox & Pricing Simulator Page (Technical Blueprint Theme)
+ * -----------------------------------------------------------------
+ * Mirrors the high-contrast technical blueprint aesthetic from the reference layout:
+ * - Solid black section header bars
+ * - Crisp white 2px black-bordered inputs
+ * - Vibrant electric blue banner for calculated total charges & billable weights
  */
 
 import React, { useState, useEffect } from 'react';
@@ -12,19 +14,19 @@ import { ZoneMapVisualizer, IMapZone } from '../components/ZoneMapVisualizer';
 
 export const RateSimulatorPage: React.FC = () => {
   // Dimension & Weight Input States
-  const [lengthCm, setLengthCm] = useState<number>(30);
-  const [widthCm, setWidthCm] = useState<number>(20);
-  const [heightCm, setHeightCm] = useState<number>(15);
-  const [actualWeightKg, setActualWeightKg] = useState<number>(3.5);
+  const [lengthCm, setLengthCm] = useState<number>(50);
+  const [widthCm, setWidthCm] = useState<number>(40);
+  const [heightCm, setHeightCm] = useState<number>(30);
+  const [actualWeightKg, setActualWeightKg] = useState<number>(12.5);
   
   // Order Attributes
-  const [orderType, setOrderType] = useState<'B2C' | 'B2B'>('B2C');
+  const [orderType, setOrderType] = useState<'B2C' | 'B2B'>('B2B');
   const [paymentType, setPaymentType] = useState<'PREPAID' | 'COD'>('PREPAID');
   const [codAmount, setCodAmount] = useState<number>(0);
 
   // Coordinate Selection & Map States
-  const [pickupCoords, setPickupCoords] = useState<[number, number]>([77.0266, 28.4595]); // South Gurgaon
-  const [dropCoords, setDropCoords] = useState<[number, number]>([77.0800, 28.4700]); // Cyber City
+  const [pickupCoords, setPickupCoords] = useState<[number, number]>([77.0266, 28.4595]);
+  const [dropCoords, setDropCoords] = useState<[number, number]>([77.0800, 28.4700]);
   const [activeSelectionMode, setActiveSelectionMode] = useState<'pickup' | 'drop' | null>(null);
   const [zones, setZones] = useState<IMapZone[]>([]);
 
@@ -32,7 +34,6 @@ export const RateSimulatorPage: React.FC = () => {
   const [simulationResult, setSimulationResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch active zones for map rendering
   useEffect(() => {
     const fetchZones = async () => {
       try {
@@ -45,7 +46,6 @@ export const RateSimulatorPage: React.FC = () => {
     fetchZones();
   }, []);
 
-  // Trigger Rate Simulation Call whenever inputs or coordinates change
   const runSimulation = async () => {
     setError(null);
     try {
@@ -82,208 +82,241 @@ export const RateSimulatorPage: React.FC = () => {
   return (
     <div className="space-y-6">
       
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800">
+      {/* Blueprint Page Header Bar */}
+      <div className="bg-white border-2 border-black neo-shadow p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2">
-            <Calculator className="w-6 h-6 text-indigo-400" />
-            <h1 className="text-xl font-bold text-white tracking-tight">Pricing Sandbox & Rate Engine Simulator</h1>
+            <Calculator className="w-6 h-6 text-[#0052FF]" />
+            <h1 className="text-xl font-extrabold text-black font-mono uppercase tracking-tight">
+              RATE SIMULATOR [SIM-001]
+            </h1>
           </div>
-          <p className="text-xs text-zinc-400 mt-1">
-            Simulate volumetric pricing, GeoJSON zone surcharges, and COD handling fees in real-time.
+          <p className="text-xs text-zinc-600 font-mono font-bold mt-1">
+            PURE FUNCTIONAL RATE ENGINE &bull; EPHEMERAL OVERRIDE SANDBOX
           </p>
         </div>
+
         <div className="flex items-center space-x-2">
-          <span className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono rounded-lg">
-            Live Rate Matrix
+          <span className="px-3 py-1 bg-[#0052FF] text-white border-2 border-black text-xs font-mono font-extrabold uppercase neo-shadow-sm">
+            SYSTEM: ACTIVE
+          </span>
+          <span className="px-3 py-1 bg-black text-white border-2 border-black text-xs font-mono font-extrabold uppercase neo-shadow-sm">
+            ZONE: NCR-MAIN
           </span>
         </div>
       </div>
 
-      {/* Main Dual-Column Grid */}
+      {/* Main Dual-Column Blueprint Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        {/* Left Column: Interactive Input Controls (7 cols) */}
+        {/* Left Column: Volumetric & Route Input Controls (7 cols) */}
         <div className="lg:col-span-7 space-y-6">
           
-          {/* Parcel Volumetric Inputs Card */}
-          <div className="bg-[#121215] border border-zinc-800 rounded-xl p-5 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-800/80">
-              <span className="text-sm font-semibold text-white flex items-center gap-2">
-                <Scale className="w-4 h-4 text-indigo-400" />
-                Parcel Dimensions & Weight
-              </span>
-              <span className="text-xs text-zinc-400 font-mono">Formula: (L × W × H) / 5000</span>
+          {/* Package Volumetrics Card (Mirrors Photo Layout) */}
+          <div className="bg-white border-2 border-black neo-shadow overflow-hidden">
+            <div className="bg-black text-white px-4 py-2 font-mono font-bold text-xs uppercase flex justify-between items-center">
+              <span>PACKAGE VOLUMETRICS KG / CM</span>
+              <Scale className="w-4 h-4 text-[#0052FF]" />
             </div>
 
-            {/* Sliders Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div>
-                <label className="text-xs text-zinc-400 flex justify-between">
-                  <span>Length (cm)</span>
-                  <span className="text-white font-mono">{lengthCm} cm</span>
-                </label>
+            <div className="p-5 space-y-4 font-mono">
+              {/* Length / Width / Height Input Boxes */}
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="text-[10px] font-bold text-zinc-600 uppercase block mb-1">
+                    LENGTH (CM)
+                  </label>
+                  <input
+                    type="number"
+                    value={lengthCm}
+                    onChange={(e) => setLengthCm(Number(e.target.value))}
+                    className="w-full bg-white border-2 border-black p-2 text-sm font-bold text-black focus:outline-none focus:ring-2 focus:ring-[#0052FF]"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-bold text-zinc-600 uppercase block mb-1">
+                    WIDTH (CM)
+                  </label>
+                  <input
+                    type="number"
+                    value={widthCm}
+                    onChange={(e) => setWidthCm(Number(e.target.value))}
+                    className="w-full bg-white border-2 border-black p-2 text-sm font-bold text-black focus:outline-none focus:ring-2 focus:ring-[#0052FF]"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-bold text-zinc-600 uppercase block mb-1">
+                    HEIGHT (CM)
+                  </label>
+                  <input
+                    type="number"
+                    value={heightCm}
+                    onChange={(e) => setHeightCm(Number(e.target.value))}
+                    className="w-full bg-white border-2 border-black p-2 text-sm font-bold text-black focus:outline-none focus:ring-2 focus:ring-[#0052FF]"
+                  />
+                </div>
+              </div>
+
+              {/* Sliders for visual adjustment */}
+              <div className="grid grid-cols-3 gap-3 text-[10px]">
                 <input
                   type="range"
                   min="5"
                   max="120"
                   value={lengthCm}
                   onChange={(e) => setLengthCm(Number(e.target.value))}
-                  className="w-full mt-2 accent-indigo-500 bg-zinc-800 rounded-lg cursor-pointer"
+                  className="w-full accent-black bg-zinc-200 cursor-pointer"
                 />
-              </div>
-
-              <div>
-                <label className="text-xs text-zinc-400 flex justify-between">
-                  <span>Width (cm)</span>
-                  <span className="text-white font-mono">{widthCm} cm</span>
-                </label>
                 <input
                   type="range"
                   min="5"
                   max="120"
                   value={widthCm}
                   onChange={(e) => setWidthCm(Number(e.target.value))}
-                  className="w-full mt-2 accent-indigo-500 bg-zinc-800 rounded-lg cursor-pointer"
+                  className="w-full accent-black bg-zinc-200 cursor-pointer"
                 />
-              </div>
-
-              <div>
-                <label className="text-xs text-zinc-400 flex justify-between">
-                  <span>Height (cm)</span>
-                  <span className="text-white font-mono">{heightCm} cm</span>
-                </label>
                 <input
                   type="range"
                   min="5"
                   max="120"
                   value={heightCm}
                   onChange={(e) => setHeightCm(Number(e.target.value))}
-                  className="w-full mt-2 accent-indigo-500 bg-zinc-800 rounded-lg cursor-pointer"
+                  className="w-full accent-black bg-zinc-200 cursor-pointer"
                 />
               </div>
-            </div>
 
-            {/* Actual Weight Slider */}
-            <div className="pt-2">
-              <label className="text-xs text-zinc-400 flex justify-between">
-                <span>Actual Package Weight (kg)</span>
-                <span className="text-white font-mono font-semibold">{actualWeightKg} kg</span>
-              </label>
-              <input
-                type="range"
-                min="0.5"
-                max="50"
-                step="0.5"
-                value={actualWeightKg}
-                onChange={(e) => setActualWeightKg(Number(e.target.value))}
-                className="w-full mt-2 accent-emerald-500 bg-zinc-800 rounded-lg cursor-pointer"
-              />
-            </div>
-          </div>
-
-          {/* Order Attribute Configuration */}
-          <div className="bg-[#121215] border border-zinc-800 rounded-xl p-5 space-y-4 shadow-xl">
-            <span className="text-sm font-semibold text-white flex items-center gap-2 pb-3 border-b border-zinc-800/80">
-              <Layers className="w-4 h-4 text-purple-400" />
-              Order Type & Payment Terms
-            </span>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Order Type Selection */}
+              {/* Actual Weight Box */}
               <div>
-                <label className="text-xs text-zinc-400 block mb-2">Order Category</label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => setOrderType('B2C')}
-                    className={`py-2 px-3 rounded-lg text-xs font-semibold border transition ${
-                      orderType === 'B2C'
-                        ? 'bg-indigo-600/20 border-indigo-500 text-indigo-400'
-                        : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white'
-                    }`}
-                  >
-                    B2C Delivery
-                  </button>
-                  <button
-                    onClick={() => setOrderType('B2B')}
-                    className={`py-2 px-3 rounded-lg text-xs font-semibold border transition ${
-                      orderType === 'B2B'
-                        ? 'bg-purple-600/20 border-purple-500 text-purple-400'
-                        : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white'
-                    }`}
-                  >
-                    B2B Commercial
-                  </button>
-                </div>
-              </div>
-
-              {/* Payment Type Selection */}
-              <div>
-                <label className="text-xs text-zinc-400 block mb-2">Payment Terms</label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => setPaymentType('PREPAID')}
-                    className={`py-2 px-3 rounded-lg text-xs font-semibold border transition ${
-                      paymentType === 'PREPAID'
-                        ? 'bg-emerald-600/20 border-emerald-500 text-emerald-400'
-                        : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white'
-                    }`}
-                  >
-                    PREPAID
-                  </button>
-                  <button
-                    onClick={() => setPaymentType('COD')}
-                    className={`py-2 px-3 rounded-lg text-xs font-semibold border transition ${
-                      paymentType === 'COD'
-                        ? 'bg-amber-600/20 border-amber-500 text-amber-400'
-                        : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white'
-                    }`}
-                  >
-                    COD Cash
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* COD Collectable Amount Input */}
-            {paymentType === 'COD' && (
-              <div className="pt-2">
-                <label className="text-xs text-zinc-400 block mb-1">COD Cash Amount to Collect (₹)</label>
+                <label className="text-[10px] font-bold text-zinc-600 uppercase block mb-1 flex justify-between">
+                  <span>ACTUAL WEIGHT (KG)</span>
+                  <span className="text-[#0052FF] font-extrabold">{actualWeightKg} KG</span>
+                </label>
                 <input
                   type="number"
-                  value={codAmount}
-                  onChange={(e) => setCodAmount(Number(e.target.value))}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-amber-500"
-                  placeholder="e.g. 1500"
+                  step="0.5"
+                  value={actualWeightKg}
+                  onChange={(e) => setActualWeightKg(Number(e.target.value))}
+                  className="w-full bg-white border-2 border-black p-2.5 text-base font-extrabold text-black focus:outline-none focus:ring-2 focus:ring-[#0052FF]"
                 />
               </div>
-            )}
+
+              <div className="p-3 bg-zinc-100 border border-zinc-300 text-[11px] text-zinc-700 font-mono font-semibold">
+                LOGIC: Volumetric weight calculated as (L×W×H) ÷ 5000. Billing applies to max(actual vs volumetric).
+              </div>
+            </div>
           </div>
 
-          {/* Interactive Map Visualizer & Pin Buttons */}
-          <div className="bg-[#121215] border border-zinc-800 rounded-xl p-5 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between pb-2">
-              <span className="text-sm font-semibold text-white">Spatial GeoJSON Pin Selection</span>
+          {/* Route & Order Specification Card (Mirrors Photo Layout) */}
+          <div className="bg-white border-2 border-black neo-shadow overflow-hidden">
+            <div className="bg-black text-white px-4 py-2 font-mono font-bold text-xs uppercase flex justify-between items-center">
+              <span>ROUTE SPECIFICATION RT-772</span>
+              <Layers className="w-4 h-4 text-[#0052FF]" />
+            </div>
+
+            <div className="p-5 space-y-4 font-mono">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Category Selection */}
+                <div>
+                  <label className="text-[10px] font-bold text-zinc-600 uppercase block mb-1">
+                    CLIENT TYPE
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => setOrderType('B2C')}
+                      className={`py-2 px-3 text-xs font-bold border-2 border-black transition ${
+                        orderType === 'B2C'
+                          ? 'bg-[#0052FF] text-white neo-shadow-sm'
+                          : 'bg-white text-black hover:bg-zinc-100'
+                      }`}
+                    >
+                      B2C RETAIL
+                    </button>
+                    <button
+                      onClick={() => setOrderType('B2B')}
+                      className={`py-2 px-3 text-xs font-bold border-2 border-black transition ${
+                        orderType === 'B2B'
+                          ? 'bg-[#0052FF] text-white neo-shadow-sm'
+                          : 'bg-white text-black hover:bg-zinc-100'
+                      }`}
+                    >
+                      B2B CORP
+                    </button>
+                  </div>
+                </div>
+
+                {/* Payment Selection */}
+                <div>
+                  <label className="text-[10px] font-bold text-zinc-600 uppercase block mb-1">
+                    PAYMENT TERMS
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => setPaymentType('PREPAID')}
+                      className={`py-2 px-3 text-xs font-bold border-2 border-black transition ${
+                        paymentType === 'PREPAID'
+                          ? 'bg-black text-white neo-shadow-sm'
+                          : 'bg-white text-black hover:bg-zinc-100'
+                      }`}
+                    >
+                      PREPAID
+                    </button>
+                    <button
+                      onClick={() => setPaymentType('COD')}
+                      className={`py-2 px-3 text-xs font-bold border-2 border-black transition ${
+                        paymentType === 'COD'
+                          ? 'bg-black text-white neo-shadow-sm'
+                          : 'bg-white text-black hover:bg-zinc-100'
+                      }`}
+                    >
+                      COD CASH
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {paymentType === 'COD' && (
+                <div>
+                  <label className="text-[10px] font-bold text-zinc-600 uppercase block mb-1">
+                    COD CASH AMOUNT TO COLLECT (₹)
+                  </label>
+                  <input
+                    type="number"
+                    value={codAmount}
+                    onChange={(e) => setCodAmount(Number(e.target.value))}
+                    className="w-full bg-white border-2 border-black p-2 text-sm font-bold text-black focus:outline-none focus:ring-2 focus:ring-[#0052FF]"
+                    placeholder="e.g. 1500"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Interactive Spatial Leaflet Map Card */}
+          <div className="bg-white border-2 border-black neo-shadow p-4 space-y-3">
+            <div className="flex items-center justify-between font-mono">
+              <span className="text-xs font-extrabold uppercase text-black">SPATIAL GEOJSON PIN SELECTION</span>
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => setActiveSelectionMode('pickup')}
-                  className={`px-3 py-1 rounded-lg text-xs font-mono border transition ${
+                  className={`px-3 py-1 text-xs font-bold uppercase border-2 border-black transition ${
                     activeSelectionMode === 'pickup'
-                      ? 'bg-emerald-600 border-emerald-400 text-white'
-                      : 'bg-emerald-950/40 border-emerald-500/30 text-emerald-400 hover:bg-emerald-900/40'
+                      ? 'bg-[#0052FF] text-white neo-shadow-sm'
+                      : 'bg-white text-black hover:bg-zinc-100'
                   }`}
                 >
-                  📍 Pin Pickup
+                  📍 PIN PICKUP
                 </button>
                 <button
                   onClick={() => setActiveSelectionMode('drop')}
-                  className={`px-3 py-1 rounded-lg text-xs font-mono border transition ${
+                  className={`px-3 py-1 text-xs font-bold uppercase border-2 border-black transition ${
                     activeSelectionMode === 'drop'
-                      ? 'bg-red-600 border-red-400 text-white'
-                      : 'bg-red-950/40 border-red-500/30 text-red-400 hover:bg-red-900/40'
+                      ? 'bg-black text-white neo-shadow-sm'
+                      : 'bg-white text-black hover:bg-zinc-100'
                   }`}
                 >
-                  📍 Pin Drop
+                  📍 PIN DROP
                 </button>
               </div>
             </div>
@@ -297,96 +330,102 @@ export const RateSimulatorPage: React.FC = () => {
               height="280px"
             />
           </div>
+
         </div>
 
-        {/* Right Column: Real-Time Price Breakdown Result Card (5 cols) */}
+        {/* Right Column: Electric Blue Price Banner & Breakdown (5 cols) */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="bg-[#121215] border border-indigo-500/30 rounded-xl p-6 shadow-2xl space-y-6 sticky top-24">
+          
+          {/* Electric Blue Calculation Card (EXACT REF FROM PHOTO!) */}
+          <div className="bg-[#0052FF] text-white border-2 border-black neo-shadow-lg p-6 space-y-6 sticky top-24 font-mono">
             
-            <div className="flex items-center justify-between pb-4 border-b border-zinc-800">
-              <div>
-                <span className="text-xs text-zinc-400 uppercase tracking-wider font-mono">Calculated Total Charge</span>
-                <div className="text-3xl font-black text-white mt-1">
-                  ₹{simulationResult ? simulationResult.totalCharge : 0}
-                </div>
+            <div className="flex items-center justify-between pb-4 border-b-2 border-white/40">
+              <div className="flex items-center space-x-2">
+                <Sparkles className="w-5 h-5 text-white" />
+                <span className="text-xs font-extrabold uppercase tracking-wider">LIVE RATE ENGINE OVERRIDE</span>
               </div>
-              <Sparkles className="w-8 h-8 text-indigo-400" />
+              <span className="text-[10px] bg-black text-white px-2 py-0.5 border border-white font-extrabold uppercase">
+                VER 2.0.4
+              </span>
             </div>
 
             {error && (
-              <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-lg flex items-center gap-2">
+              <div className="p-3 bg-red-600 text-white border-2 border-black text-xs font-bold flex items-center gap-2">
                 <ShieldAlert className="w-4 h-4 shrink-0" />
                 <span>{error}</span>
               </div>
             )}
 
-            {/* Charge Line Items */}
+            {/* Calculated Charge Banner (PHOTO HERO COMPONENT) */}
             {simulationResult && (
-              <div className="space-y-3 text-xs">
+              <div className="space-y-6">
                 
-                {/* Weight Comparison */}
-                <div className="p-3 bg-zinc-900/80 border border-zinc-800 rounded-lg space-y-1">
-                  <div className="flex justify-between text-zinc-400">
-                    <span>Volumetric Weight:</span>
-                    <span className="font-mono text-white">{simulationResult.volumetricWeightKg} kg</span>
+                <div className="bg-white text-black border-2 border-black neo-shadow p-5 flex flex-col justify-between">
+                  <span className="text-[11px] font-extrabold text-zinc-600 uppercase">
+                    CALCULATED CHARGE ({orderType} RATE CARD)
+                  </span>
+                  <div className="text-4xl font-black text-[#0052FF] tracking-tight mt-2">
+                    ₹{simulationResult.totalCharge}
                   </div>
-                  <div className="flex justify-between text-zinc-400">
-                    <span>Actual Weight:</span>
-                    <span className="font-mono text-white">{simulationResult.actualWeightKg} kg</span>
-                  </div>
-                  <div className="flex justify-between font-semibold pt-1 border-t border-zinc-800 text-emerald-400">
-                    <span>Chargeable Weight:</span>
-                    <span className="font-mono">{simulationResult.chargeableWeightKg} kg</span>
+                  
+                  <div className="mt-4 pt-3 border-t-2 border-black flex justify-between items-center text-xs">
+                    <span className="font-bold text-zinc-600 uppercase">BILLABLE WEIGHT</span>
+                    <span className="font-black text-black text-sm">{simulationResult.billableWeightKg} KG</span>
                   </div>
                 </div>
 
-                {/* Pricing Line Items */}
-                <div className="space-y-2 pt-2">
-                  <div className="flex justify-between text-zinc-300">
-                    <span>Base Fare Charge:</span>
-                    <span className="font-mono text-white">₹{simulationResult.baseCharge}</span>
+                {/* Line Item Breakdown */}
+                <div className="bg-black text-white border-2 border-black neo-shadow-sm p-4 space-y-2 text-xs">
+                  <div className="flex justify-between border-b border-zinc-800 pb-1">
+                    <span className="text-zinc-400">Volumetric Weight:</span>
+                    <span className="font-bold text-white">{simulationResult.volumetricWeightKg} KG</span>
                   </div>
-
-                  <div className="flex justify-between text-zinc-300">
-                    <span>Volumetric Weight Surge:</span>
-                    <span className="font-mono text-white">₹{simulationResult.weightSurgeCharge}</span>
+                  <div className="flex justify-between border-b border-zinc-800 pb-1">
+                    <span className="text-zinc-400">Actual Weight:</span>
+                    <span className="font-bold text-white">{simulationResult.actualWeightKg} KG</span>
                   </div>
-
-                  <div className="flex justify-between text-zinc-300">
-                    <span>Zone Tier Surcharge:</span>
-                    <span className="font-mono text-white">₹{simulationResult.zoneSurcharge}</span>
+                  <div className="flex justify-between border-b border-zinc-800 pb-1">
+                    <span className="text-zinc-400">Base Fare Charge:</span>
+                    <span className="font-bold text-white">₹{simulationResult.baseFee}</span>
                   </div>
-
-                  <div className="flex justify-between text-zinc-300">
-                    <span>Order Category Surcharge:</span>
-                    <span className="font-mono text-white">₹{simulationResult.orderTypeSurge}</span>
+                  <div className="flex justify-between border-b border-zinc-800 pb-1">
+                    <span className="text-zinc-400">Weight Surcharge:</span>
+                    <span className="font-bold text-white">₹{simulationResult.weightFee}</span>
                   </div>
-
+                  <div className="flex justify-between border-b border-zinc-800 pb-1">
+                    <span className="text-zinc-400">Shipment Type:</span>
+                    <span className="font-bold text-white">{simulationResult.isInterZone ? 'INTER-ZONE' : 'INTRA-ZONE'}</span>
+                  </div>
                   {paymentType === 'COD' && (
-                    <div className="flex justify-between text-amber-400">
-                      <span>COD Handling Fee (2%):</span>
-                      <span className="font-mono">₹{simulationResult.codSurcharge}</span>
+                    <div className="flex justify-between text-yellow-300 font-bold">
+                      <span>COD Handling Surcharge:</span>
+                      <span>₹{simulationResult.codSurcharge}</span>
                     </div>
                   )}
-                </div>
-
-                {/* Financial Margin Snapshot */}
-                <div className="p-3 bg-indigo-950/20 border border-indigo-500/20 rounded-lg pt-3 space-y-1 font-mono">
-                  <div className="flex justify-between text-zinc-400">
-                    <span>Estimated Cost:</span>
-                    <span>₹{simulationResult.estimatedCost}</span>
-                  </div>
-                  <div className="flex justify-between text-emerald-400 font-bold">
-                    <span>Estimated Margin:</span>
-                    <span>₹{simulationResult.estimatedMargin} ({simulationResult.marginPercentage}%)</span>
-                  </div>
                 </div>
 
               </div>
             )}
 
-            <div className="text-[11px] text-zinc-500 text-center font-mono">
-              Pure Functional Pure Rate Engine Execution &bull; Ephemeral Sandbox Override
+            {/* Action Buttons (MIRRORS PHOTO BUTTONS) */}
+            <div className="space-y-2 pt-2">
+              <button
+                onClick={runSimulation}
+                className="w-full py-3 bg-black hover:bg-zinc-800 text-white font-mono font-black text-xs uppercase border-2 border-black neo-shadow transition"
+              >
+                CONFIRM & RE-CALCULATE WAYBILL
+              </button>
+
+              <button
+                onClick={() => alert('Simulation parameters saved to local sandbox session!')}
+                className="w-full py-2.5 bg-white hover:bg-zinc-100 text-black font-mono font-bold text-xs uppercase border-2 border-black neo-shadow-sm transition"
+              >
+                SAVE DRAFT CONFIGURATION
+              </button>
+            </div>
+
+            <div className="text-[10px] text-white/80 text-center font-mono font-semibold">
+              SYS_UID: 9928-881 &bull; PURE RATE ENGINE ACTIVE
             </div>
 
           </div>

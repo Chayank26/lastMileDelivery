@@ -1,6 +1,6 @@
 /**
- * Admin Zone Management & GeoJSON Polygon Editor Page
- * ----------------------------------------------------
+ * Admin Zone Management & GeoJSON Polygon Editor Page (Technical Blueprint Theme)
+ * -------------------------------------------------------------------------------
  * Allows Admins to view active delivery zones on an interactive Leaflet map,
  * seed standard NCR sample zones with 1 click, toggle zone status, and upload/paste new GeoJSON polygons.
  */
@@ -24,7 +24,7 @@ export const ZoneManagementPage: React.FC = () => {
   const [newZoneCode, setNewZoneCode] = useState<string>('');
   const [newZoneTier, setNewZoneTier] = useState<string>('Tier-1 Core');
   const [newBaseSurgePct, setNewBaseSurgePct] = useState<number>(0);
-  const [newColorHex, setNewColorHex] = useState<string>('#6366f1');
+  const [newColorHex, setNewColorHex] = useState<string>('#0052FF');
   const [rawCoordinatesInput, setRawCoordinatesInput] = useState<string>('');
 
   const fetchZones = async () => {
@@ -62,7 +62,6 @@ export const ZoneManagementPage: React.FC = () => {
     setSuccessMsg(null);
 
     try {
-      // Parse raw coordinates string: [[[77.0, 28.4], [77.1, 28.4], ...]]
       const parsedCoordinates = JSON.parse(rawCoordinatesInput);
 
       const payload = {
@@ -81,7 +80,6 @@ export const ZoneManagementPage: React.FC = () => {
       setSuccessMsg(`Zone '${newZoneName}' created successfully!`);
       setIsModalOpen(false);
       
-      // Reset form
       setNewZoneName('');
       setNewZoneCode('');
       setRawCoordinatesInput('');
@@ -104,26 +102,28 @@ export const ZoneManagementPage: React.FC = () => {
 
   if (role !== 'ADMIN') {
     return (
-      <div className="p-8 text-center bg-[#121215] border border-red-500/30 rounded-xl space-y-3">
-        <ShieldAlert className="w-10 h-10 text-red-400 mx-auto" />
-        <h2 className="text-lg font-bold text-white">Access Forbidden</h2>
-        <p className="text-xs text-zinc-400">Zone Management and Spatial Editing requires ADMIN role privileges.</p>
+      <div className="p-8 text-center bg-white border-2 border-black neo-shadow space-y-3 font-mono">
+        <ShieldAlert className="w-10 h-10 text-red-600 mx-auto" />
+        <h2 className="text-lg font-extrabold text-black uppercase">ACCESS RESTRICTED</h2>
+        <p className="text-xs text-zinc-600 font-bold">Zone Management and Spatial Editing requires ADMIN role privileges.</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-mono">
       
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800">
+      <div className="bg-white border-2 border-black neo-shadow p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2">
-            <MapPin className="w-6 h-6 text-indigo-400" />
-            <h1 className="text-xl font-bold text-white tracking-tight">Zone Management & Spatial Polygons</h1>
+            <MapPin className="w-6 h-6 text-[#0052FF]" />
+            <h1 className="text-xl font-extrabold text-black uppercase tracking-tight font-mono">
+              ZONE MANAGEMENT & SPATIAL POLYGONS [GEO-01]
+            </h1>
           </div>
-          <p className="text-xs text-zinc-400 mt-1">
-            Configure GeoJSON delivery boundaries, pricing tiers, and spatial surge multipliers.
+          <p className="text-xs text-zinc-600 font-bold mt-1">
+            CONFIGURE GEOJSON BOUNDARIES &bull; TIER MULTIPLIERS &bull; SPATIAL OVERLAYS
           </p>
         </div>
 
@@ -131,91 +131,91 @@ export const ZoneManagementPage: React.FC = () => {
           <button
             onClick={handleSeedZones}
             disabled={isSeeding}
-            className="px-3.5 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-lg text-xs font-semibold border border-zinc-700 transition flex items-center gap-1.5"
+            className="px-3.5 py-2 bg-white hover:bg-zinc-100 text-black border-2 border-black text-xs font-bold uppercase transition neo-shadow-sm flex items-center gap-1.5"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isSeeding ? 'animate-spin' : ''}`} />
-            <span>Seed NCR Zones</span>
+            <span>SEED NCR ZONES</span>
           </button>
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1.5 shadow-lg shadow-indigo-600/20"
+            className="px-3.5 py-2 bg-[#0052FF] hover:bg-[#0042D0] text-white border-2 border-black text-xs font-bold uppercase transition neo-shadow-sm flex items-center gap-1.5"
           >
             <Plus className="w-4 h-4" />
-            <span>Add Zone</span>
+            <span>ADD NEW ZONE</span>
           </button>
         </div>
       </div>
 
       {/* Notifications */}
       {error && (
-        <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-lg flex items-center gap-2">
+        <div className="p-3 bg-red-100 border-2 border-black text-red-700 text-xs font-bold neo-shadow-sm flex items-center gap-2">
           <ShieldAlert className="w-4 h-4 shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
       {successMsg && (
-        <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs rounded-lg flex items-center gap-2">
+        <div className="p-3 bg-emerald-100 border-2 border-black text-emerald-800 text-xs font-bold neo-shadow-sm flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
           <span>{successMsg}</span>
         </div>
       )}
 
-      {/* Interactive Map Visualizer */}
-      <div className="bg-[#121215] border border-zinc-800 rounded-xl p-4 shadow-xl space-y-3">
-        <div className="flex items-center justify-between text-xs text-zinc-400 px-1">
-          <span className="font-semibold text-white flex items-center gap-1.5">
-            <Layers className="w-4 h-4 text-indigo-400" />
-            Spatial Polygon Layer Overlay
+      {/* Interactive Map Visualizer Card */}
+      <div className="bg-white border-2 border-black neo-shadow p-4 space-y-3">
+        <div className="flex items-center justify-between text-xs text-black font-extrabold uppercase px-1">
+          <span className="flex items-center gap-1.5">
+            <Layers className="w-4 h-4 text-[#0052FF]" />
+            SPATIAL POLYGON LAYER OVERLAY
           </span>
-          <span className="font-mono">{zones.length} Zones Active</span>
+          <span className="bg-[#0052FF] text-white px-2 py-0.5 border border-black">{zones.length} ZONES REGISTERED</span>
         </div>
 
         <ZoneMapVisualizer zones={zones} height="360px" />
       </div>
 
-      {/* Zones Data Table */}
-      <div className="bg-[#121215] border border-zinc-800 rounded-xl overflow-hidden shadow-xl">
-        <div className="px-5 py-4 border-b border-zinc-800 flex items-center justify-between">
-          <h2 className="text-sm font-bold text-white">Registered Delivery Zones</h2>
-          <span className="text-xs text-zinc-500 font-mono">GeoJSON Polygons</span>
+      {/* Zones Data Table Card */}
+      <div className="bg-white border-2 border-black neo-shadow overflow-hidden">
+        <div className="bg-black text-white px-5 py-3 flex items-center justify-between font-mono font-bold text-xs uppercase">
+          <span>REGISTERED DELIVERY ZONES LEDGER</span>
+          <span>GEOJSON POLYGONS</span>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-zinc-300">
-            <thead className="bg-zinc-900/80 text-zinc-400 font-mono uppercase text-[10px] border-b border-zinc-800">
+          <table className="w-full text-left text-xs font-mono">
+            <thead className="bg-zinc-100 text-black uppercase font-bold text-[11px] border-b-2 border-black">
               <tr>
-                <th className="px-5 py-3">Zone Code</th>
-                <th className="px-5 py-3">Zone Name</th>
-                <th className="px-5 py-3">Tier</th>
-                <th className="px-5 py-3">Base Surge %</th>
-                <th className="px-5 py-3">Polygon Color</th>
-                <th className="px-5 py-3">Status</th>
+                <th className="px-5 py-3">ZONE CODE</th>
+                <th className="px-5 py-3">ZONE NAME</th>
+                <th className="px-5 py-3">TIER</th>
+                <th className="px-5 py-3">SURGE %</th>
+                <th className="px-5 py-3">MAP COLOR</th>
+                <th className="px-5 py-3">STATUS</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-800/60 font-sans">
+            <tbody className="divide-y border-b-2 border-black divide-zinc-200">
               {zones.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-5 py-8 text-center text-zinc-500">
-                    No delivery zones configured yet. Click 'Seed NCR Zones' above to populate default test data.
+                  <td colSpan={6} className="px-5 py-8 text-center text-zinc-500 font-bold">
+                    No delivery zones configured yet. Click 'SEED NCR ZONES' above to populate default test data.
                   </td>
                 </tr>
               ) : (
                 zones.map((z: any) => (
-                  <tr key={z._id} className="hover:bg-zinc-900/40 transition">
-                    <td className="px-5 py-3 font-mono font-semibold text-indigo-400">{z.code}</td>
-                    <td className="px-5 py-3 font-medium text-white">{z.name}</td>
-                    <td className="px-5 py-3 text-zinc-400">{z.tier || 'Standard'}</td>
-                    <td className="px-5 py-3 font-mono text-emerald-400">+{z.baseSurgePercentage || 0}%</td>
+                  <tr key={z._id} className="hover:bg-zinc-50 transition">
+                    <td className="px-5 py-3 font-bold text-[#0052FF]">{z.code}</td>
+                    <td className="px-5 py-3 font-extrabold text-black">{z.name}</td>
+                    <td className="px-5 py-3 text-zinc-600 font-bold">{z.tier || 'Standard'}</td>
+                    <td className="px-5 py-3 font-bold text-emerald-700">+{z.baseSurgePercentage || 0}%</td>
                     <td className="px-5 py-3">
                       <div className="flex items-center space-x-2">
-                        <span className="w-3.5 h-3.5 rounded-full border border-white/20" style={{ backgroundColor: z.colorHex || '#6366f1' }}></span>
-                        <span className="font-mono text-zinc-400">{z.colorHex || '#6366f1'}</span>
+                        <span className="w-3.5 h-3.5 border border-black" style={{ backgroundColor: z.colorHex || '#0052FF' }}></span>
+                        <span className="font-bold text-black">{z.colorHex || '#0052FF'}</span>
                       </div>
                     </td>
                     <td className="px-5 py-3">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                      <span className="px-2 py-0.5 font-bold bg-[#0052FF] text-white border border-black text-[10px]">
                         ACTIVE
                       </span>
                     </td>
@@ -229,16 +229,16 @@ export const ZoneManagementPage: React.FC = () => {
 
       {/* Add Zone GeoJSON Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="bg-[#121215] border border-zinc-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <Code className="w-5 h-5 text-indigo-400" />
-                Add New GeoJSON Zone
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
+          <div className="bg-white border-2 border-black neo-shadow-lg max-w-lg w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto font-mono">
+            <div className="flex items-center justify-between pb-3 border-b-2 border-black">
+              <h3 className="text-sm font-extrabold text-black uppercase flex items-center gap-2">
+                <Code className="w-5 h-5 text-[#0052FF]" />
+                ADD NEW GEOJSON ZONE POLYGON
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-zinc-500 hover:text-white text-sm"
+                className="text-black font-bold p-1 hover:bg-zinc-100 border border-black"
               >
                 ✕
               </button>
@@ -247,66 +247,66 @@ export const ZoneManagementPage: React.FC = () => {
             <form onSubmit={handleCreateZone} className="space-y-4 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-zinc-400 block mb-1">Zone Name</label>
+                  <label className="text-zinc-700 font-bold block mb-1">ZONE NAME</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. West Delhi Core"
                     value={newZoneName}
                     onChange={(e) => setNewZoneName(e.target.value)}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full bg-white border-2 border-black p-2 font-bold text-black focus:outline-none focus:ring-2 focus:ring-[#0052FF]"
                   />
                 </div>
 
                 <div>
-                  <label className="text-zinc-400 block mb-1">Zone Code (Unique)</label>
+                  <label className="text-zinc-700 font-bold block mb-1">ZONE CODE (UNIQUE)</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. ZONE_DELHI_WEST"
                     value={newZoneCode}
                     onChange={(e) => setNewZoneCode(e.target.value)}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-white font-mono focus:outline-none focus:border-indigo-500"
+                    className="w-full bg-white border-2 border-black p-2 font-bold text-black focus:outline-none focus:ring-2 focus:ring-[#0052FF]"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="text-zinc-400 block mb-1">Tier</label>
+                  <label className="text-zinc-700 font-bold block mb-1">TIER</label>
                   <input
                     type="text"
                     value={newZoneTier}
                     onChange={(e) => setNewZoneTier(e.target.value)}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-white"
+                    className="w-full bg-white border-2 border-black p-2 font-bold text-black"
                   />
                 </div>
 
                 <div>
-                  <label className="text-zinc-400 block mb-1">Base Surge %</label>
+                  <label className="text-zinc-700 font-bold block mb-1">SURGE %</label>
                   <input
                     type="number"
                     value={newBaseSurgePct}
                     onChange={(e) => setNewBaseSurgePct(Number(e.target.value))}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-white font-mono"
+                    className="w-full bg-white border-2 border-black p-2 font-bold text-black"
                   />
                 </div>
 
                 <div>
-                  <label className="text-zinc-400 block mb-1">Map Color</label>
+                  <label className="text-zinc-700 font-bold block mb-1">MAP COLOR</label>
                   <input
                     type="color"
                     value={newColorHex}
                     onChange={(e) => setNewColorHex(e.target.value)}
-                    className="w-full h-9 bg-zinc-900 border border-zinc-800 rounded-lg cursor-pointer p-1"
+                    className="w-full h-9 bg-white border-2 border-black p-1 cursor-pointer"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-zinc-400 block mb-1 flex justify-between">
-                  <span>Polygon Coordinates JSON [[[lng, lat], ...]]</span>
-                  <span className="text-indigo-400 font-mono text-[10px]">Leaflet / Turf Format</span>
+                <label className="text-zinc-700 font-bold block mb-1 flex justify-between">
+                  <span>POLYGON COORDINATES JSON</span>
+                  <span className="text-[#0052FF]">LEAFLET / TURF FORMAT</span>
                 </label>
                 <textarea
                   rows={6}
@@ -314,23 +314,23 @@ export const ZoneManagementPage: React.FC = () => {
                   placeholder={samplePolygonJson}
                   value={rawCoordinatesInput}
                   onChange={(e) => setRawCoordinatesInput(e.target.value)}
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-3 text-emerald-400 font-mono text-[11px] focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-zinc-900 border-2 border-black p-3 text-emerald-400 font-mono text-[11px] focus:outline-none focus:ring-2 focus:ring-[#0052FF]"
                 />
               </div>
 
-              <div className="flex items-center justify-end space-x-3 pt-3 border-t border-zinc-800">
+              <div className="flex items-center justify-end space-x-3 pt-3 border-t-2 border-black">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-xs font-semibold"
+                  className="px-4 py-2 bg-white hover:bg-zinc-100 text-black border-2 border-black font-bold text-xs uppercase"
                 >
-                  Cancel
+                  CANCEL
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow-lg shadow-indigo-600/20"
+                  className="px-4 py-2 bg-[#0052FF] hover:bg-[#0042D0] text-white border-2 border-black font-bold text-xs uppercase neo-shadow-sm"
                 >
-                  Save & Render Zone
+                  SAVE & RENDER ZONE
                 </button>
               </div>
             </form>

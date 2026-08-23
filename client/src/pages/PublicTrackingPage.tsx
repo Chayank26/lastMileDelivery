@@ -1,9 +1,9 @@
 /**
- * Public Live Order Tracking & Event Audit Timeline Page
- * --------------------------------------------------------
+ * Public Live Order Tracking & Event Audit Timeline Page (Technical Blueprint Theme)
+ * ----------------------------------------------------------------------------------
  * Enables public customers to track shipments by tracking ID without login.
- * Subscribes to real-time Socket.io order channels (`order:${id}`), renders Leaflet route map,
- * progress stepper timeline, immutable event audit log table, and targeted failure reschedule workflows.
+ * Subscribes to real-time Socket.io channels, renders Leaflet route map, progress stepper,
+ * immutable event audit log table, and targeted failure reschedule forms.
  */
 
 import React, { useState, useEffect } from 'react';
@@ -47,7 +47,6 @@ export const PublicTrackingPage: React.FC = () => {
       setOrderData(response.data.order);
       setAuditLogs(response.data.auditLogs || []);
 
-      // Populate default reschedule address values if failed
       if (response.data.order?.dropAddress) {
         setUpdatedStreet(response.data.order.dropAddress.street || '');
         setUpdatedPincode(response.data.order.dropAddress.pincode || '');
@@ -73,20 +72,14 @@ export const PublicTrackingPage: React.FC = () => {
     }
   }, [pathTrackingId, searchParams]);
 
-  // Real-Time Socket.io Room Subscription for Order Live Updates
   useEffect(() => {
     if (!orderData?._id) return;
 
     const socket = io('/', { transports: ['websocket', 'polling'] });
     socket.emit('subscribe:order', orderData._id);
 
-    socket.on('order:status_updated', () => {
-      fetchTrackingDetails(orderData.trackingId);
-    });
-
-    socket.on('order:assigned', () => {
-      fetchTrackingDetails(orderData.trackingId);
-    });
+    socket.on('order:status_updated', () => fetchTrackingDetails(orderData.trackingId));
+    socket.on('order:assigned', () => fetchTrackingDetails(orderData.trackingId));
 
     return () => {
       socket.emit('unsubscribe:order', orderData._id);
@@ -115,7 +108,6 @@ export const PublicTrackingPage: React.FC = () => {
         notes: rescheduleNotes,
       };
 
-      // Include updated drop address if modified
       if (updatedStreet && updatedLng && updatedLat) {
         payload.updatedDropAddress = {
           street: updatedStreet,
@@ -137,32 +129,34 @@ export const PublicTrackingPage: React.FC = () => {
 
   const getStepStatusClass = (stepName: string) => {
     const statusOrder = ['CREATED', 'PICKED_UP', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED'];
-    if (!orderData) return 'bg-zinc-800 text-zinc-500';
+    if (!orderData) return 'bg-zinc-200 text-zinc-500 border-2 border-black';
     
     if (orderData.status === 'FAILED') {
-      return 'bg-red-500/20 text-red-400 border-red-500/40';
+      return 'bg-red-600 text-white font-bold border-2 border-black';
     }
 
     const currentIndex = statusOrder.indexOf(orderData.status);
     const stepIndex = statusOrder.indexOf(stepName);
 
     if (stepIndex <= currentIndex && currentIndex !== -1) {
-      return 'bg-indigo-600 text-white font-bold shadow-lg shadow-indigo-600/30';
+      return 'bg-[#0052FF] text-white font-extrabold border-2 border-black neo-shadow-sm';
     }
-    return 'bg-zinc-800 text-zinc-500 border border-zinc-700';
+    return 'bg-zinc-100 text-zinc-500 border-2 border-black';
   };
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <div className="space-y-6 max-w-5xl mx-auto font-mono">
       
       {/* Tracking Search Hero Bar */}
-      <div className="bg-[#121215] border border-zinc-800 rounded-xl p-6 shadow-xl space-y-4">
+      <div className="bg-white border-2 border-black neo-shadow p-6 space-y-4">
         <div className="flex items-center space-x-2">
-          <Search className="w-6 h-6 text-indigo-400" />
-          <h1 className="text-xl font-bold text-white tracking-tight">Public Live Delivery Tracking Timeline</h1>
+          <Search className="w-6 h-6 text-[#0052FF]" />
+          <h1 className="text-xl font-extrabold text-black uppercase tracking-tight">
+            PUBLIC LIVE DELIVERY TRACKING TIMELINE [TIMELINE-01]
+          </h1>
         </div>
-        <p className="text-xs text-zinc-400">
-          Enter your 10-character tracking ID code (e.g. <span className="font-mono text-indigo-400">DEL-984201-X</span>) to view live agent coordinates and audit history.
+        <p className="text-xs text-zinc-600 font-bold">
+          ENTER YOUR 10-CHARACTER TRACKING ID CODE (e.g. <span className="text-[#0052FF] font-extrabold">DEL-984201-X</span>) TO VIEW LIVE AGENT COORDINATES AND IMMUTABLE AUDIT LOGS.
         </p>
 
         <form onSubmit={handleSearchSubmit} className="flex gap-2">
@@ -171,29 +165,29 @@ export const PublicTrackingPage: React.FC = () => {
             placeholder="Enter Tracking ID (e.g. DEL-XXXXXX-X)"
             value={inputTrackingId}
             onChange={(e) => setInputTrackingId(e.target.value)}
-            className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2.5 text-sm text-white font-mono uppercase focus:outline-none focus:border-indigo-500"
+            className="flex-1 bg-white border-2 border-black p-2.5 text-sm text-black font-extrabold uppercase focus:outline-none focus:ring-2 focus:ring-[#0052FF]"
           />
           <button
             type="submit"
             disabled={isLoading}
-            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition shrink-0 shadow-lg shadow-indigo-600/20 flex items-center gap-1.5"
+            className="px-5 py-2.5 bg-[#0052FF] hover:bg-[#0042D0] text-white border-2 border-black text-xs font-extrabold uppercase transition shrink-0 neo-shadow-sm flex items-center gap-1.5"
           >
             {isLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
-            <span>Track Order</span>
+            <span>TRACK SHIPMENT</span>
           </button>
         </form>
       </div>
 
       {/* Notifications */}
       {error && (
-        <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-lg flex items-center gap-2">
+        <div className="p-3 bg-red-100 border-2 border-black text-red-700 text-xs font-bold neo-shadow-sm flex items-center gap-2">
           <AlertTriangle className="w-4 h-4 shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
       {successMsg && (
-        <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs rounded-lg flex items-center gap-2">
+        <div className="p-3 bg-emerald-100 border-2 border-black text-emerald-800 text-xs font-bold neo-shadow-sm flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
           <span>{successMsg}</span>
         </div>
@@ -203,25 +197,25 @@ export const PublicTrackingPage: React.FC = () => {
         <div className="space-y-6">
           
           {/* Order Details Header Card */}
-          <div className="bg-[#121215] border border-zinc-800 rounded-xl p-6 shadow-xl space-y-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800">
+          <div className="bg-white border-2 border-black neo-shadow p-6 space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b-2 border-black">
               <div>
-                <span className="text-xs text-zinc-500 font-mono">TRACKING CODE</span>
-                <div className="text-2xl font-black text-white font-mono mt-0.5">#{orderData.trackingId}</div>
+                <span className="text-xs text-zinc-500 font-bold uppercase">TRACKING CODE</span>
+                <div className="text-2xl font-black text-black mt-0.5">#{orderData.trackingId}</div>
               </div>
 
               <div className="flex items-center space-x-3">
-                <span className={`px-3 py-1 rounded-full text-xs font-mono font-bold border ${
+                <span className={`px-3 py-1 text-xs font-extrabold border-2 border-black uppercase neo-shadow-sm ${
                   orderData.status === 'DELIVERED'
-                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                    ? 'bg-emerald-400 text-black'
                     : orderData.status === 'FAILED'
-                    ? 'bg-red-500/10 text-red-400 border-red-500/20'
-                    : 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
+                    ? 'bg-red-600 text-white'
+                    : 'bg-[#0052FF] text-white'
                 }`}>
                   STATUS: {orderData.status}
                 </span>
 
-                <span className="px-3 py-1 bg-zinc-800 text-zinc-300 font-mono text-xs rounded-full border border-zinc-700">
+                <span className="px-3 py-1 bg-black text-white font-extrabold text-xs border-2 border-black">
                   ₹{orderData.priceBreakdown?.totalCharge || 0} ({orderData.paymentType})
                 </span>
               </div>
@@ -229,14 +223,14 @@ export const PublicTrackingPage: React.FC = () => {
 
             {/* Stepper Progress Bar Timeline */}
             <div className="space-y-2">
-              <span className="text-xs text-zinc-400 font-semibold uppercase tracking-wider font-mono">Shipment Lifecycle Progression</span>
+              <span className="text-xs text-zinc-600 font-extrabold uppercase tracking-wider">SHIPMENT LIFECYCLE PROGRESSION</span>
               <div className="grid grid-cols-5 gap-2 pt-2">
                 {['CREATED', 'PICKED_UP', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED'].map((step, idx) => (
                   <div key={step} className="flex flex-col items-center text-center space-y-1.5">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-mono transition ${getStepStatusClass(step)}`}>
+                    <div className={`w-9 h-9 flex items-center justify-center text-xs font-extrabold transition ${getStepStatusClass(step)}`}>
                       {idx + 1}
                     </div>
-                    <span className="text-[10px] text-zinc-400 font-mono font-medium truncate w-full">{step}</span>
+                    <span className="text-[10px] text-black font-extrabold truncate w-full">{step}</span>
                   </div>
                 ))}
               </div>
@@ -244,29 +238,29 @@ export const PublicTrackingPage: React.FC = () => {
 
             {/* Assigned Driver Details */}
             {orderData.assignedAgent && (
-              <div className="p-4 bg-indigo-950/20 border border-indigo-500/20 rounded-xl flex items-center justify-between text-xs">
+              <div className="p-4 bg-zinc-100 border-2 border-black flex items-center justify-between text-xs">
                 <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-indigo-600/20 border border-indigo-500/30 rounded-lg text-indigo-400">
+                  <div className="p-2 bg-[#0052FF] text-white border border-black">
                     <Truck className="w-5 h-5" />
                   </div>
                   <div>
-                    <div className="font-bold text-white">Assigned Driver: {orderData.assignedAgent.name}</div>
-                    <div className="text-zinc-400 font-mono text-[11px]">Phone: {orderData.assignedAgent.phone || 'Contact via Dispatch'}</div>
+                    <div className="font-extrabold text-black">ASSIGNED DRIVER: {orderData.assignedAgent.name}</div>
+                    <div className="text-zinc-600 text-[11px] font-bold">PHONE: {orderData.assignedAgent.phone || 'Contact via Dispatch'}</div>
                   </div>
                 </div>
-                <span className="text-emerald-400 font-mono text-[11px] font-semibold">Active Delivery Agent</span>
+                <span className="text-emerald-700 font-extrabold text-[11px]">ACTIVE DELIVERY AGENT</span>
               </div>
             )}
           </div>
 
           {/* Interactive Route Map */}
-          <div className="bg-[#121215] border border-zinc-800 rounded-xl p-4 shadow-xl space-y-3">
-            <div className="flex items-center justify-between text-xs text-zinc-400 px-1">
-              <span className="font-semibold text-white flex items-center gap-1.5">
-                <MapPin className="w-4 h-4 text-indigo-400" />
-                Live Spatial Map Route & Coordinates
+          <div className="bg-white border-2 border-black neo-shadow p-4 space-y-3">
+            <div className="flex items-center justify-between text-xs text-black font-bold px-1">
+              <span className="flex items-center gap-1.5 font-extrabold uppercase">
+                <MapPin className="w-4 h-4 text-[#0052FF]" />
+                LIVE SPATIAL MAP ROUTE & COORDINATES
               </span>
-              <span className="font-mono text-indigo-400">Socket.io Channel Connected</span>
+              <span className="bg-[#0052FF] text-white px-2 py-0.5 border border-black font-bold uppercase">SOCKET.IO CONNECTED</span>
             </div>
 
             <ZoneMapVisualizer
@@ -279,83 +273,82 @@ export const PublicTrackingPage: React.FC = () => {
 
           {/* Targeted Failure Diagnostic Reschedule Card (for FAILED orders) */}
           {orderData.status === 'FAILED' && (
-            <div className="bg-[#121215] border border-red-500/40 rounded-xl p-6 shadow-2xl space-y-4">
-              <div className="flex items-center space-x-2 text-red-400 font-bold text-sm pb-2 border-b border-red-500/20">
+            <div className="bg-red-50 border-2 border-black neo-shadow p-6 space-y-4">
+              <div className="flex items-center space-x-2 text-red-700 font-extrabold text-sm pb-2 border-b-2 border-black">
                 <AlertTriangle className="w-5 h-5" />
-                <span>Delivery Attempt Unsuccessful &bull; Reason: {orderData.failureReasonCode || 'UNSPECIFIED'}</span>
+                <span>DELIVERY ATTEMPT UNSUCCESSFUL &bull; REASON: {orderData.failureReasonCode || 'UNSPECIFIED'}</span>
               </div>
 
-              <p className="text-xs text-zinc-400">
-                We were unable to deliver your package during the last attempt. Please select a new date below or update your drop address to re-queue delivery.
+              <p className="text-xs text-zinc-700 font-bold">
+                WE WERE UNABLE TO DELIVER YOUR PACKAGE DURING THE LAST ATTEMPT. PLEASE SELECT A NEW DATE BELOW OR UPDATE DROP ADDRESS TO RE-QUEUE DELIVERY.
               </p>
 
-              <form onSubmit={handleCustomerRescheduleSubmit} className="space-y-4 text-xs">
+              <form onSubmit={handleCustomerRescheduleSubmit} className="space-y-4 text-xs font-mono">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-zinc-300 block mb-1">New Delivery Date</label>
+                    <label className="text-black font-bold block mb-1">NEW DELIVERY DATE</label>
                     <input
                       type="date"
                       required
                       value={rescheduledDate}
                       onChange={(e) => setRescheduledDate(e.target.value)}
-                      className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-white font-mono"
+                      className="w-full bg-white border-2 border-black p-2 font-bold text-black"
                     />
                   </div>
 
                   {orderData.paymentType === 'COD' && (
                     <div className="flex items-center pt-5">
-                      <label className="flex items-center space-x-2 text-amber-400 cursor-pointer">
+                      <label className="flex items-center space-x-2 text-black font-bold cursor-pointer">
                         <input
                           type="checkbox"
                           checked={switchPaymentToPrepaid}
                           onChange={(e) => setSwitchPaymentToPrepaid(e.target.checked)}
-                          className="accent-amber-500 rounded"
+                          className="accent-black w-4 h-4 border-2 border-black"
                         />
-                        <span>Switch Payment from COD to PREPAID (Zero COD Fee)</span>
+                        <span>SWITCH PAYMENT FROM COD TO PREPAID (ZERO COD FEE)</span>
                       </label>
                     </div>
                   )}
                 </div>
 
-                {/* Optional Drop Address Correction */}
                 {orderData.failureReasonCode === 'INCORRECT_ADDRESS' && (
-                  <div className="p-4 bg-zinc-900/80 border border-zinc-800 rounded-xl space-y-3">
-                    <span className="font-bold text-white block">Correct Drop Address Details</span>
+                  <div className="p-4 bg-white border-2 border-black space-y-3">
+                    <span className="font-extrabold text-black block uppercase">CORRECT DROP ADDRESS DETAILS</span>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div>
-                        <label className="text-zinc-400 block mb-1">Street Address</label>
+                        <label className="text-zinc-600 block mb-1">STREET ADDRESS</label>
                         <input
                           type="text"
                           value={updatedStreet}
                           onChange={(e) => setUpdatedStreet(e.target.value)}
-                          className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-1.5 text-white"
+                          className="w-full bg-white border-2 border-black p-2 font-bold text-black"
                         />
                       </div>
                       <div>
-                        <label className="text-zinc-400 block mb-1">Pincode</label>
+                        <label className="text-zinc-600 block mb-1">PINCODE</label>
                         <input
                           type="text"
                           value={updatedPincode}
                           onChange={(e) => setUpdatedPincode(e.target.value)}
-                          className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-1.5 text-white font-mono"
+                          className="w-full bg-white border-2 border-black p-2 font-bold text-black"
                         />
                       </div>
                       <div>
-                        <label className="text-zinc-400 block mb-1">Longitude / Latitude</label>
+                        <label className="text-zinc-600 block mb-1">LONGITUDE / LATITUDE</label>
                         <div className="flex gap-1">
                           <input
                             type="number"
                             step="0.0001"
                             value={updatedLng}
                             onChange={(e) => setUpdatedLng(Number(e.target.value))}
-                            className="w-1/2 bg-zinc-950 border border-zinc-800 rounded px-2 py-1.5 text-white font-mono"
+                            className="w-1/2 bg-white border-2 border-black p-2 font-bold text-black"
                           />
                           <input
                             type="number"
                             step="0.0001"
                             value={updatedLat}
                             onChange={(e) => setUpdatedLat(Number(e.target.value))}
-                            className="w-1/2 bg-zinc-950 border border-zinc-800 rounded px-2 py-1.5 text-white font-mono"
+                            className="w-1/2 bg-white border-2 border-black p-2 font-bold text-black"
                           />
                         </div>
                       </div>
@@ -364,71 +357,71 @@ export const PublicTrackingPage: React.FC = () => {
                 )}
 
                 <div>
-                  <label className="text-zinc-300 block mb-1">Delivery Access Notes / Instructions</label>
+                  <label className="text-black font-bold block mb-1">DELIVERY ACCESS NOTES / INSTRUCTIONS</label>
                   <textarea
                     rows={2}
                     placeholder="Gate pass instructions, landmark, or contact numbers..."
                     value={rescheduleNotes}
                     onChange={(e) => setRescheduleNotes(e.target.value)}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-white"
+                    className="w-full bg-white border-2 border-black p-3 font-bold text-black"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={isSubmittingReschedule}
-                  className="w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg transition shadow-lg shadow-amber-600/20"
+                  className="w-full py-2.5 bg-black hover:bg-zinc-800 text-white font-extrabold text-xs uppercase border-2 border-black neo-shadow transition"
                 >
-                  {isSubmittingReschedule ? 'Re-queueing Shipment...' : '📅 Commit Reschedule & Re-assign Agent'}
+                  {isSubmittingReschedule ? 'Re-queueing Shipment...' : '📅 COMMIT RESCHEDULE & RE-ASSIGN AGENT'}
                 </button>
               </form>
             </div>
           )}
 
           {/* Immutable Event Audit Log Ledger Table */}
-          <div className="bg-[#121215] border border-zinc-800 rounded-xl overflow-hidden shadow-xl">
-            <div className="px-5 py-4 border-b border-zinc-800 flex items-center justify-between">
-              <h2 className="text-sm font-bold text-white flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                Immutable Event Audit Log History
+          <div className="bg-white border-2 border-black neo-shadow overflow-hidden">
+            <div className="bg-black text-white px-5 py-3 border-b-2 border-black flex items-center justify-between">
+              <h2 className="text-xs font-extrabold uppercase flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-[#0052FF]" />
+                IMMUTABLE EVENT AUDIT LOG HISTORY
               </h2>
-              <span className="text-xs text-zinc-500 font-mono">{auditLogs.length} Audit Entries</span>
+              <span className="text-xs text-zinc-400 font-bold">{auditLogs.length} AUDIT ENTRIES</span>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-zinc-300">
-                <thead className="bg-zinc-900/80 text-zinc-400 font-mono uppercase text-[10px] border-b border-zinc-800">
+              <table className="w-full text-left text-xs font-mono">
+                <thead className="bg-zinc-100 text-black uppercase font-bold text-[11px] border-b-2 border-black">
                   <tr>
-                    <th className="px-5 py-3">Timestamp</th>
-                    <th className="px-5 py-3">Action Event</th>
-                    <th className="px-5 py-3">Actor Role</th>
-                    <th className="px-5 py-3">Status Transition</th>
-                    <th className="px-5 py-3">IP Address</th>
+                    <th className="px-5 py-3">TIMESTAMP</th>
+                    <th className="px-5 py-3">ACTION EVENT</th>
+                    <th className="px-5 py-3">ACTOR ROLE</th>
+                    <th className="px-5 py-3">STATUS TRANSITION</th>
+                    <th className="px-5 py-3">IP ADDRESS</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-800/60 font-sans">
+                <tbody className="divide-y divide-zinc-200 border-b-2 border-black">
                   {auditLogs.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="px-5 py-6 text-center text-zinc-500">
+                      <td colSpan={5} className="px-5 py-6 text-center text-zinc-500 font-bold">
                         No audit events recorded yet.
                       </td>
                     </tr>
                   ) : (
                     auditLogs.map((log: any) => (
-                      <tr key={log._id} className="hover:bg-zinc-900/40 transition">
-                        <td className="px-5 py-3 font-mono text-zinc-400">
+                      <tr key={log._id} className="hover:bg-zinc-50 transition">
+                        <td className="px-5 py-3 font-bold text-zinc-600">
                           {new Date(log.timestamp).toLocaleString()}
                         </td>
-                        <td className="px-5 py-3 font-mono font-bold text-indigo-400">
+                        <td className="px-5 py-3 font-extrabold text-[#0052FF]">
                           {log.action}
                         </td>
-                        <td className="px-5 py-3 font-mono text-zinc-300">
+                        <td className="px-5 py-3 font-bold text-black">
                           {log.actorRole}
                         </td>
-                        <td className="px-5 py-3 font-mono text-emerald-400">
+                        <td className="px-5 py-3 font-bold text-emerald-700">
                           {log.previousStatus ? `${log.previousStatus} ➔ ${log.newStatus}` : log.newStatus}
                         </td>
-                        <td className="px-5 py-3 font-mono text-zinc-500">
+                        <td className="px-5 py-3 font-bold text-zinc-500">
                           {log.ipAddress || '127.0.0.1'}
                         </td>
                       </tr>

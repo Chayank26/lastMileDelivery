@@ -1,9 +1,8 @@
 /**
- * Order Management & Admin Dispatch Command Center Page
- * -----------------------------------------------------
- * Central dispatch overview allowing Admins & Customers to create shipments,
- * trigger Agentic AI address parsing, execute auto-assignments, update order status,
- * reschedule failed deliveries, and view real-time Socket.io dispatch streams.
+ * Order Management & Admin Dispatch Command Center Page (Technical Blueprint Theme)
+ * -------------------------------------------------------------------------------
+ * Central dispatch overview featuring Socket.io real-time updates, Agentic AI address parsing,
+ * and high-contrast neo-brutalist dispatch tables.
  */
 
 import React, { useState, useEffect } from 'react';
@@ -34,7 +33,7 @@ export const OrderManagementPage: React.FC = () => {
   const [dropStreet, setDropStreet] = useState<string>('Cyber City, Gurgaon');
   const [dropCity, setDropCity] = useState<string>('Gurgaon');
   const [dropPincode, setDropPincode] = useState<string>('122002');
-  const [dropCoords, setDropCoords] = useState<[number, number]>([77.0850, 28.4900]);
+  const [dropCoords] = useState<[number, number]>([77.0850, 28.4900]);
 
   const [lengthCm, setLengthCm] = useState<number>(30);
   const [widthCm, setWidthCm] = useState<number>(20);
@@ -71,7 +70,6 @@ export const OrderManagementPage: React.FC = () => {
   useEffect(() => {
     fetchOrdersAndAgents();
 
-    // Socket.io Real-Time WebSockets Listener
     const socket = io('/', { transports: ['websocket', 'polling'] });
     socket.emit('subscribe:admin');
 
@@ -84,7 +82,6 @@ export const OrderManagementPage: React.FC = () => {
     };
   }, [role]);
 
-  // Agentic AI Unstructured Address Auto-Parse Handler
   const handleAiParseAddress = async () => {
     if (!unstructuredAddressInput.trim()) return;
     setIsAiParsing(true);
@@ -96,9 +93,6 @@ export const OrderManagementPage: React.FC = () => {
         setDropStreet(res.street || dropStreet);
         setDropCity(res.city || dropCity);
         setDropPincode(res.pincode || dropPincode);
-        if (res.coordinates) {
-          setDropCoords(res.coordinates);
-        }
         if (res.inferredOrderType) {
           setOrderType(res.inferredOrderType);
         }
@@ -191,130 +185,132 @@ export const OrderManagementPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-mono">
       
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800">
+      <div className="bg-white border-2 border-black neo-shadow p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2">
-            <Package className="w-6 h-6 text-indigo-400" />
-            <h1 className="text-xl font-bold text-white tracking-tight">Order Management & Dispatch Center</h1>
+            <Package className="w-6 h-6 text-[#0052FF]" />
+            <h1 className="text-xl font-extrabold text-black uppercase tracking-tight">
+              DISPATCH COMMAND CENTER [OPS-01]
+            </h1>
           </div>
-          <p className="text-xs text-zinc-400 mt-1">
-            Real-time Socket.io event stream &bull; Role: <span className="text-indigo-400 font-mono font-medium">{role || 'Public'}</span>
+          <p className="text-xs text-zinc-600 font-bold mt-1">
+            REAL-TIME SOCKET.IO DISPATCH STREAM &bull; ROLE: <span className="text-[#0052FF] font-extrabold">{role || 'PUBLIC'}</span>
           </p>
         </div>
 
         <div className="flex items-center space-x-3">
           <button
             onClick={fetchOrdersAndAgents}
-            className="px-3.5 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-lg text-xs font-semibold border border-zinc-700 transition flex items-center gap-1.5"
+            className="px-3.5 py-2 bg-white hover:bg-zinc-100 text-black border-2 border-black text-xs font-bold uppercase transition neo-shadow-sm flex items-center gap-1.5"
           >
             <RefreshCw className="w-3.5 h-3.5" />
-            <span>Refresh Dispatch</span>
+            <span>REFRESH STREAM</span>
           </button>
 
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1.5 shadow-lg shadow-indigo-600/20"
+            className="px-3.5 py-2 bg-[#0052FF] hover:bg-[#0042D0] text-white border-2 border-black text-xs font-bold uppercase transition neo-shadow-sm flex items-center gap-1.5"
           >
             <Plus className="w-4 h-4" />
-            <span>New Shipment Order</span>
+            <span>NEW SHIPMENT ORDER</span>
           </button>
         </div>
       </div>
 
       {/* Notifications */}
       {error && (
-        <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-lg flex items-center gap-2">
+        <div className="p-3 bg-red-100 border-2 border-black text-red-700 text-xs font-bold neo-shadow-sm flex items-center gap-2">
           <ShieldAlert className="w-4 h-4 shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
       {successMsg && (
-        <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs rounded-lg flex items-center gap-2">
+        <div className="p-3 bg-emerald-100 border-2 border-black text-emerald-800 text-xs font-bold neo-shadow-sm flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
           <span>{successMsg}</span>
         </div>
       )}
 
       {/* Orders Table Card */}
-      <div className="bg-[#121215] border border-zinc-800 rounded-xl overflow-hidden shadow-xl">
-        <div className="px-5 py-4 border-b border-zinc-800 flex items-center justify-between">
-          <h2 className="text-sm font-bold text-white">Active System Shipments</h2>
-          <span className="text-xs text-zinc-500 font-mono">{orders.length} Total Shipments</span>
+      <div className="bg-white border-2 border-black neo-shadow overflow-hidden">
+        <div className="bg-black text-white px-5 py-3 flex items-center justify-between font-mono font-bold text-xs uppercase">
+          <span>ACTIVE SYSTEM SHIPMENTS</span>
+          <span>{orders.length} TOTAL SHIPMENTS</span>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-zinc-300">
-            <thead className="bg-zinc-900/80 text-zinc-400 font-mono uppercase text-[10px] border-b border-zinc-800">
+          <table className="w-full text-left text-xs font-mono">
+            <thead className="bg-zinc-100 text-black uppercase font-bold text-[11px] border-b-2 border-black">
               <tr>
-                <th className="px-5 py-3">Tracking ID</th>
-                <th className="px-5 py-3">Customer</th>
-                <th className="px-5 py-3">Type</th>
-                <th className="px-5 py-3">Charge</th>
-                <th className="px-5 py-3">Status</th>
-                <th className="px-5 py-3">Assigned Agent</th>
-                <th className="px-5 py-3 text-right">Dispatch Actions</th>
+                <th className="px-5 py-3">TRACKING ID</th>
+                <th className="px-5 py-3">CUSTOMER</th>
+                <th className="px-5 py-3">TYPE</th>
+                <th className="px-5 py-3">CHARGE</th>
+                <th className="px-5 py-3">STATUS</th>
+                <th className="px-5 py-3">ASSIGNED AGENT</th>
+                <th className="px-5 py-3 text-right">DISPATCH ACTIONS</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-800/60 font-sans">
+            <tbody className="divide-y divide-zinc-200 border-b-2 border-black">
               {orders.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-5 py-8 text-center text-zinc-500">
-                    No shipments found. Click 'New Shipment Order' to create an order or run rate simulations.
+                  <td colSpan={7} className="px-5 py-8 text-center text-zinc-500 font-bold">
+                    No shipments found. Click 'NEW SHIPMENT ORDER' to create an order or run rate simulations.
                   </td>
                 </tr>
               ) : (
                 orders.map((o: any) => (
-                  <tr key={o._id} className="hover:bg-zinc-900/40 transition">
-                    <td className="px-5 py-3 font-mono font-bold text-indigo-400">
+                  <tr key={o._id} className="hover:bg-zinc-50 transition">
+                    <td className="px-5 py-3 font-bold text-[#0052FF]">
                       <Link to={`/track-search?code=${o.trackingId}`} className="hover:underline">
                         #{o.trackingId}
                       </Link>
                     </td>
-                    <td className="px-5 py-3 font-medium text-white">{o.customer?.name || 'Customer'}</td>
+                    <td className="px-5 py-3 font-extrabold text-black">{o.customer?.name || 'Customer'}</td>
                     <td className="px-5 py-3">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold ${
-                        o.orderType === 'B2B' ? 'bg-purple-500/10 text-purple-400' : 'bg-indigo-500/10 text-indigo-400'
+                      <span className={`px-2 py-0.5 font-bold border border-black text-[10px] ${
+                        o.orderType === 'B2B' ? 'bg-[#0052FF] text-white' : 'bg-black text-white'
                       }`}>
                         {o.orderType}
                       </span>
                     </td>
-                    <td className="px-5 py-3 font-mono font-bold text-emerald-400">
+                    <td className="px-5 py-3 font-extrabold text-black">
                       ₹{o.priceBreakdown?.totalCharge || 0}
                     </td>
                     <td className="px-5 py-3">
-                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold border ${
+                      <span className={`px-2.5 py-1 font-bold border-2 border-black text-[10px] neo-shadow-sm ${
                         o.status === 'DELIVERED'
-                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                          ? 'bg-emerald-400 text-black'
                           : o.status === 'FAILED'
-                          ? 'bg-red-500/10 text-red-400 border-red-500/20'
+                          ? 'bg-red-500 text-white'
                           : o.status === 'OUT_FOR_DELIVERY'
-                          ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                          : 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
+                          ? 'bg-[#0052FF] text-white'
+                          : 'bg-zinc-200 text-black'
                       }`}>
                         {o.status}
                       </span>
                     </td>
-                    <td className="px-5 py-3 text-zinc-400 font-medium">
-                      {o.assignedAgent ? o.assignedAgent.name : <span className="text-zinc-600 font-mono">Unassigned</span>}
+                    <td className="px-5 py-3 text-zinc-700 font-bold">
+                      {o.assignedAgent ? o.assignedAgent.name : <span className="text-zinc-400">UNASSIGNED</span>}
                     </td>
                     <td className="px-5 py-3 text-right space-x-2">
                       {role === 'ADMIN' && !o.assignedAgent && o.status !== 'DELIVERED' && (
                         <>
                           <button
                             onClick={() => handleAutoAssign(o._id)}
-                            className="px-2.5 py-1 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 border border-indigo-500/30 rounded text-[11px] font-semibold transition"
+                            className="px-2.5 py-1 bg-[#0052FF] hover:bg-[#0042D0] text-white border-2 border-black text-[10px] font-bold uppercase neo-shadow-sm transition"
                           >
-                            ⚡ Auto-Assign
+                            ⚡ AUTO-ASSIGN
                           </button>
                           <button
                             onClick={() => setAssigningOrderId(o._id)}
-                            className="px-2.5 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded text-[11px] font-semibold transition"
+                            className="px-2.5 py-1 bg-white hover:bg-zinc-100 text-black border-2 border-black text-[10px] font-bold uppercase transition"
                           >
-                            Manual Assign
+                            MANUAL ASSIGN
                           </button>
                         </>
                       )}
@@ -322,9 +318,9 @@ export const OrderManagementPage: React.FC = () => {
                       {o.status === 'FAILED' && (
                         <button
                           onClick={() => setReschedulingOrderId(o._id)}
-                          className="px-2.5 py-1 bg-amber-600/20 hover:bg-amber-600/30 text-amber-400 border border-amber-500/30 rounded text-[11px] font-semibold transition"
+                          className="px-2.5 py-1 bg-black hover:bg-zinc-800 text-white border-2 border-black text-[10px] font-bold uppercase neo-shadow-sm transition"
                         >
-                          📅 Reschedule
+                          📅 RESCHEDULE
                         </button>
                       )}
                     </td>
@@ -336,26 +332,26 @@ export const OrderManagementPage: React.FC = () => {
         </div>
       </div>
 
-      {/* New Shipment Order Creation Modal (with Agentic AI Address Auto-Parse) */}
+      {/* New Shipment Order Creation Modal */}
       {isCreateModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="bg-[#121215] border border-zinc-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <Package className="w-5 h-5 text-indigo-400" />
-                Create New Logistics Shipment Order
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 font-mono">
+          <div className="bg-white border-2 border-black neo-shadow-lg max-w-2xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b-2 border-black">
+              <h3 className="text-sm font-extrabold text-black uppercase flex items-center gap-2">
+                <Package className="w-5 h-5 text-[#0052FF]" />
+                CREATE NEW LOGISTICS SHIPMENT ORDER
               </h3>
-              <button onClick={() => setIsCreateModalOpen(false)} className="text-zinc-500 hover:text-white">✕</button>
+              <button onClick={() => setIsCreateModalOpen(false)} className="text-black font-bold p-1 border border-black hover:bg-zinc-100">✕</button>
             </div>
 
             {/* Agentic AI Unstructured Address Auto-Parse Box */}
-            <div className="p-4 bg-indigo-950/20 border border-indigo-500/30 rounded-xl space-y-2">
+            <div className="p-4 bg-zinc-100 border-2 border-black neo-shadow-sm space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-indigo-400 flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-indigo-400 animate-pulse" />
-                  Agentic AI Address Parsing (Gemini 1.5 Flash)
+                <span className="text-xs font-extrabold text-[#0052FF] flex items-center gap-1.5 uppercase">
+                  <Sparkles className="w-4 h-4 text-[#0052FF] animate-pulse" />
+                  AGENTIC AI ADDRESS PARSING (GEMINI 1.5 FLASH)
                 </span>
-                <span className="text-[10px] text-zinc-500 font-mono">Unstructured Indian Text</span>
+                <span className="text-[10px] text-zinc-500 font-bold">UNSTRUCTURED INDIAN TEXT</span>
               </div>
               <div className="flex gap-2">
                 <input
@@ -363,15 +359,15 @@ export const OrderManagementPage: React.FC = () => {
                   placeholder="e.g. Opposite Apollo Pharmacy near Green Park metro, Delhi 110016"
                   value={unstructuredAddressInput}
                   onChange={(e) => setUnstructuredAddressInput(e.target.value)}
-                  className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                  className="flex-1 bg-white border-2 border-black p-2 text-xs font-bold text-black focus:outline-none focus:ring-2 focus:ring-[#0052FF]"
                 />
                 <button
                   type="button"
                   onClick={handleAiParseAddress}
                   disabled={isAiParsing}
-                  className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition shrink-0 flex items-center gap-1"
+                  className="px-3.5 py-2 bg-[#0052FF] hover:bg-[#0042D0] text-white border-2 border-black text-xs font-bold uppercase transition shrink-0 flex items-center gap-1 neo-shadow-sm"
                 >
-                  {isAiParsing ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : 'AI Auto-Fill'}
+                  {isAiParsing ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : 'AI AUTO-FILL'}
                 </button>
               </div>
             </div>
@@ -379,15 +375,15 @@ export const OrderManagementPage: React.FC = () => {
             <form onSubmit={handleCreateOrderSubmit} className="space-y-4 text-xs">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Pickup Address */}
-                <div className="p-3 bg-zinc-900/60 border border-zinc-800 rounded-lg space-y-2">
-                  <span className="font-bold text-zinc-300">Pickup Address</span>
+                <div className="p-3 bg-zinc-50 border-2 border-black space-y-2">
+                  <span className="font-bold text-black block uppercase">PICKUP ADDRESS (ORIGIN)</span>
                   <input
                     type="text"
                     required
                     placeholder="Street Address"
                     value={pickupStreet}
                     onChange={(e) => setPickupStreet(e.target.value)}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1.5 text-white"
+                    className="w-full bg-white border-2 border-black p-2 font-bold text-black"
                   />
                   <div className="grid grid-cols-2 gap-2">
                     <input
@@ -396,7 +392,7 @@ export const OrderManagementPage: React.FC = () => {
                       placeholder="City"
                       value={pickupCity}
                       onChange={(e) => setPickupCity(e.target.value)}
-                      className="bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1.5 text-white"
+                      className="bg-white border-2 border-black p-2 font-bold text-black"
                     />
                     <input
                       type="text"
@@ -404,21 +400,21 @@ export const OrderManagementPage: React.FC = () => {
                       placeholder="Pincode"
                       value={pickupPincode}
                       onChange={(e) => setPickupPincode(e.target.value)}
-                      className="bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1.5 text-white font-mono"
+                      className="bg-white border-2 border-black p-2 font-bold text-black"
                     />
                   </div>
                 </div>
 
                 {/* Drop Address */}
-                <div className="p-3 bg-zinc-900/60 border border-zinc-800 rounded-lg space-y-2">
-                  <span className="font-bold text-zinc-300">Drop Address</span>
+                <div className="p-3 bg-zinc-50 border-2 border-black space-y-2">
+                  <span className="font-bold text-black block uppercase">DROP ADDRESS (DESTINATION)</span>
                   <input
                     type="text"
                     required
                     placeholder="Street Address"
                     value={dropStreet}
                     onChange={(e) => setDropStreet(e.target.value)}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1.5 text-white"
+                    className="w-full bg-white border-2 border-black p-2 font-bold text-black"
                   />
                   <div className="grid grid-cols-2 gap-2">
                     <input
@@ -427,7 +423,7 @@ export const OrderManagementPage: React.FC = () => {
                       placeholder="City"
                       value={dropCity}
                       onChange={(e) => setDropCity(e.target.value)}
-                      className="bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1.5 text-white"
+                      className="bg-white border-2 border-black p-2 font-bold text-black"
                     />
                     <input
                       type="text"
@@ -435,7 +431,7 @@ export const OrderManagementPage: React.FC = () => {
                       placeholder="Pincode"
                       value={dropPincode}
                       onChange={(e) => setDropPincode(e.target.value)}
-                      className="bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1.5 text-white font-mono"
+                      className="bg-white border-2 border-black p-2 font-bold text-black"
                     />
                   </div>
                 </div>
@@ -444,40 +440,40 @@ export const OrderManagementPage: React.FC = () => {
               {/* Dimensions & Weight */}
               <div className="grid grid-cols-4 gap-2">
                 <div>
-                  <label className="text-zinc-400 block mb-1">Length (cm)</label>
+                  <label className="text-zinc-600 font-bold block mb-1">LENGTH (CM)</label>
                   <input
                     type="number"
                     value={lengthCm}
                     onChange={(e) => setLengthCm(Number(e.target.value))}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1.5 text-white font-mono"
+                    className="w-full bg-white border-2 border-black p-2 font-bold text-black"
                   />
                 </div>
                 <div>
-                  <label className="text-zinc-400 block mb-1">Width (cm)</label>
+                  <label className="text-zinc-600 font-bold block mb-1">WIDTH (CM)</label>
                   <input
                     type="number"
                     value={widthCm}
                     onChange={(e) => setWidthCm(Number(e.target.value))}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1.5 text-white font-mono"
+                    className="w-full bg-white border-2 border-black p-2 font-bold text-black"
                   />
                 </div>
                 <div>
-                  <label className="text-zinc-400 block mb-1">Height (cm)</label>
+                  <label className="text-zinc-600 font-bold block mb-1">HEIGHT (CM)</label>
                   <input
                     type="number"
                     value={heightCm}
                     onChange={(e) => setHeightCm(Number(e.target.value))}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1.5 text-white font-mono"
+                    className="w-full bg-white border-2 border-black p-2 font-bold text-black"
                   />
                 </div>
                 <div>
-                  <label className="text-zinc-400 block mb-1">Weight (kg)</label>
+                  <label className="text-zinc-600 font-bold block mb-1">WEIGHT (KG)</label>
                   <input
                     type="number"
                     step="0.5"
                     value={actualWeightKg}
                     onChange={(e) => setActualWeightKg(Number(e.target.value))}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1.5 text-white font-mono"
+                    className="w-full bg-white border-2 border-black p-2 font-bold text-black"
                   />
                 </div>
               </div>
@@ -485,43 +481,43 @@ export const OrderManagementPage: React.FC = () => {
               {/* Order Type & Payment Terms */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-zinc-400 block mb-1">Order Category</label>
+                  <label className="text-zinc-600 font-bold block mb-1">ORDER CATEGORY</label>
                   <select
                     value={orderType}
                     onChange={(e) => setOrderType(e.target.value as any)}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1.5 text-white font-semibold"
+                    className="w-full bg-white border-2 border-black p-2 font-extrabold text-black"
                   >
-                    <option value="B2C">B2C Delivery</option>
-                    <option value="B2B">B2B Commercial</option>
+                    <option value="B2C">B2C RETAIL</option>
+                    <option value="B2B">B2B COMMERCIAL</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="text-zinc-400 block mb-1">Payment Method</label>
+                  <label className="text-zinc-600 font-bold block mb-1">PAYMENT METHOD</label>
                   <select
                     value={paymentType}
                     onChange={(e) => setPaymentType(e.target.value as any)}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1.5 text-white font-semibold"
+                    className="w-full bg-white border-2 border-black p-2 font-extrabold text-black"
                   >
                     <option value="PREPAID">PREPAID</option>
-                    <option value="COD">COD Cash</option>
+                    <option value="COD">COD CASH</option>
                   </select>
                 </div>
               </div>
 
-              <div className="flex items-center justify-end space-x-3 pt-3 border-t border-zinc-800">
+              <div className="flex items-center justify-end space-x-3 pt-3 border-t-2 border-black">
                 <button
                   type="button"
                   onClick={() => setIsCreateModalOpen(false)}
-                  className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg font-semibold"
+                  className="px-4 py-2 bg-white hover:bg-zinc-100 text-black border-2 border-black font-bold text-xs uppercase"
                 >
-                  Cancel
+                  CANCEL
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold shadow-lg shadow-indigo-600/20"
+                  className="px-4 py-2 bg-[#0052FF] hover:bg-[#0042D0] text-white border-2 border-black font-bold text-xs uppercase neo-shadow-sm"
                 >
-                  Confirm & Create Order
+                  CONFIRM & GENERATE WAYBILL
                 </button>
               </div>
             </form>
@@ -531,47 +527,47 @@ export const OrderManagementPage: React.FC = () => {
 
       {/* Manual Agent Assignment Modal */}
       {assigningOrderId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="bg-[#121215] border border-zinc-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <UserCheck className="w-4 h-4 text-indigo-400" />
-                Manual Agent Dispatch Assignment
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 font-mono">
+          <div className="bg-white border-2 border-black neo-shadow-lg max-w-md w-full p-6 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b-2 border-black">
+              <h3 className="text-sm font-extrabold text-black uppercase flex items-center gap-2">
+                <UserCheck className="w-4 h-4 text-[#0052FF]" />
+                MANUAL AGENT DISPATCH ASSIGNMENT
               </h3>
-              <button onClick={() => setAssigningOrderId(null)} className="text-zinc-500 hover:text-white">✕</button>
+              <button onClick={() => setAssigningOrderId(null)} className="text-black font-bold p-1 border border-black">✕</button>
             </div>
 
             <form onSubmit={handleManualAssignSubmit} className="space-y-4 text-xs">
               <div>
-                <label className="text-zinc-400 block mb-1">Select Delivery Agent</label>
+                <label className="text-zinc-600 font-bold block mb-1">SELECT DELIVERY AGENT</label>
                 <select
                   value={selectedAgentId}
                   onChange={(e) => setSelectedAgentId(e.target.value)}
                   required
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-white font-medium"
+                  className="w-full bg-white border-2 border-black p-2 font-bold text-black"
                 >
-                  <option value="">-- Select Active Delivery Agent --</option>
+                  <option value="">-- SELECT ACTIVE DELIVERY AGENT --</option>
                   {agents.map((a: any) => (
                     <option key={a._id} value={a.user?._id}>
-                      {a.user?.name} ({a.status} &bull; Active: {a.currentActiveOrderCount}/{a.maxConcurrentOrders})
+                      {a.user?.name} ({a.status} &bull; ACTIVE: {a.currentActiveOrderCount}/{a.maxConcurrentOrders})
                     </option>
                   ))}
                 </select>
               </div>
 
-              <div className="flex items-center justify-end space-x-3 pt-3 border-t border-zinc-800">
+              <div className="flex items-center justify-end space-x-3 pt-3 border-t-2 border-black">
                 <button
                   type="button"
                   onClick={() => setAssigningOrderId(null)}
-                  className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg font-semibold"
+                  className="px-4 py-2 bg-white hover:bg-zinc-100 text-black border-2 border-black font-bold text-xs uppercase"
                 >
-                  Cancel
+                  CANCEL
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold"
+                  className="px-4 py-2 bg-[#0052FF] hover:bg-[#0042D0] text-white border-2 border-black font-bold text-xs uppercase neo-shadow-sm"
                 >
-                  Assign Agent
+                  ASSIGN AGENT
                 </button>
               </div>
             </form>
@@ -581,52 +577,52 @@ export const OrderManagementPage: React.FC = () => {
 
       {/* Reschedule Modal */}
       {reschedulingOrderId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="bg-[#121215] border border-zinc-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <RefreshCw className="w-4 h-4 text-amber-400" />
-                Reschedule Failed Shipment
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 font-mono">
+          <div className="bg-white border-2 border-black neo-shadow-lg max-w-md w-full p-6 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b-2 border-black">
+              <h3 className="text-sm font-extrabold text-black uppercase flex items-center gap-2">
+                <RefreshCw className="w-4 h-4 text-black" />
+                RESCHEDULE FAILED SHIPMENT
               </h3>
-              <button onClick={() => setReschedulingOrderId(null)} className="text-zinc-500 hover:text-white">✕</button>
+              <button onClick={() => setReschedulingOrderId(null)} className="text-black font-bold p-1 border border-black">✕</button>
             </div>
 
             <form onSubmit={handleRescheduleSubmit} className="space-y-4 text-xs">
               <div>
-                <label className="text-zinc-400 block mb-1">New Delivery Date</label>
+                <label className="text-zinc-600 font-bold block mb-1">NEW DELIVERY DATE</label>
                 <input
                   type="date"
                   required
                   value={rescheduledDate}
                   onChange={(e) => setRescheduledDate(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-white font-mono"
+                  className="w-full bg-white border-2 border-black p-2 font-bold text-black"
                 />
               </div>
 
               <div>
-                <label className="text-zinc-400 block mb-1">Reschedule Instructions / Notes</label>
+                <label className="text-zinc-600 font-bold block mb-1">RESCHEDULE INSTRUCTIONS / NOTES</label>
                 <textarea
                   rows={3}
                   placeholder="Gate pass instructions or address corrections..."
                   value={rescheduleNotes}
                   onChange={(e) => setRescheduleNotes(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-white"
+                  className="w-full bg-white border-2 border-black p-3 font-bold text-black"
                 />
               </div>
 
-              <div className="flex items-center justify-end space-x-3 pt-3 border-t border-zinc-800">
+              <div className="flex items-center justify-end space-x-3 pt-3 border-t-2 border-black">
                 <button
                   type="button"
                   onClick={() => setReschedulingOrderId(null)}
-                  className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg font-semibold"
+                  className="px-4 py-2 bg-white hover:bg-zinc-100 text-black border-2 border-black font-bold text-xs uppercase"
                 >
-                  Cancel
+                  CANCEL
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-semibold"
+                  className="px-4 py-2 bg-[#0052FF] hover:bg-[#0042D0] text-white border-2 border-black font-bold text-xs uppercase neo-shadow-sm"
                 >
-                  Commit Reschedule
+                  COMMIT RESCHEDULE
                 </button>
               </div>
             </form>
