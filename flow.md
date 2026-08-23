@@ -388,6 +388,37 @@ This file details the runtime flow, entrypoints, sequence of execution, and call
   * `notifyOrderCreated` in `server/src/services/notificationService.ts`
   * `notifyOrderStatusChanged` in `server/src/services/notificationService.ts`
 
+---
+
+## Phase 13 Execution & Agentic AI Address Resolution Flow
+
+```
+[HTTP Request: POST /api/ai/parse-address]
+        │
+        ▼
+[Router: server/src/routes/aiRoutes.ts]
+        │
+        ▼
+[Controller: parseAddress in server/src/controllers/aiController.ts]
+        │
+        ▼
+[Service: resolveUnstructuredAddress() in server/src/services/aiAddressParser.ts]
+        │
+        ├── Checks GEMINI_API_KEY configuration:
+        │     ├── If Present ──► Calls Google Gemini API (`@google/generative-ai`)
+        │     └── If Missing ──► Invokes `parseAddressHeuristically()` (Regex/City matching)
+        │
+        ├── Extracts: street, city, pincode, landmark, floor, isCommercial (B2B vs B2C)
+        ├── Estimates Coordinates [longitude, latitude]
+        ├── Auto-detects matching GeoJSON Zone via Turf.js (`detectZoneForCoordinates`)
+        └── Returns HTTP 200 { success: true, result: IParsedAddressResult }
+```
+
+### Module Call Graph (Phase 13)
+* `server/src/routes/aiRoutes.ts` maps:
+  * `POST /parse-address` $\rightarrow$ `parseAddress` in `server/src/controllers/aiController.ts` $\rightarrow$ `resolveUnstructuredAddress` in `server/src/services/aiAddressParser.ts` $\rightarrow$ `detectZoneForCoordinates`
+
+
 
 
 

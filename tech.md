@@ -30,6 +30,8 @@ This file catalogs every technology, framework, npm package, and infrastructure 
 | **Smart Reschedule Engine** | `/api/orders/:id/reschedule` | Failure Resolution Workflow | Targeted failure diagnostic workflow allowing customers to update delivery dates, correct drop addresses (re-running spatial zone detection & rate recalculation), switch COD to Prepaid, and automatically reassign new agents. |
 | **Real-Time WebSockets Engine** | `socket.io` (`v4.7.5`) | Socket.io WebSockets Gateway | Bi-directional real-time communication engine managing room-based channels (`order:${id}`, `admin`, `agent:${id}`) for live timeline updates, dispatch feeds, and driver position streaming. |
 | **Notification Engine** | `nodemailer` (`v6.9.13`) | Nodemailer + SMS Gateway | Customer notification engine dispatching styled HTML emails with live tracking links and SMS alerts on every status transition (`CREATED`, `OUT_FOR_DELIVERY`, `DELIVERED`, `FAILED`). |
+| **Agentic AI Resolution Engine** | `@google/generative-ai` (`v0.11.1`) | Google Gemini LLM API | AI address parsing engine using Gemini 1.5 Flash to extract structured fields (street, pincode, city, landmark, floor), infer B2B/B2C, and auto-detect GeoJSON zones with heuristic regex fallback. |
+
 
 
 
