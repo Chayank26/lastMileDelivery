@@ -493,6 +493,33 @@ This file details the runtime flow, entrypoints, sequence of execution, and call
 * `client/src/components/ZoneMapVisualizer.tsx` calls:
   * `MapContainer`, `TileLayer`, `Polygon`, `Marker`, `Polyline`, `useMapEvents` from `react-leaflet`
 
+---
+
+## Phase 17 Execution & Pricing Simulator Flow
+
+```
+[User Adjusts Sliders / Pins Map in client/src/pages/RateSimulatorPage.tsx]
+        │
+        ▼
+[API Request: POST /api/rates/simulate via client/src/services/api.ts]
+        │
+        ▼
+[Controller: simulateRateOverride in server/src/controllers/rateCardController.ts]
+        │
+        ├── Runs Turf.js spatial zone detection (`detectZoneForCoordinates`)
+        ├── Invokes Pure Rate Engine (`calculateOrderPrice()`) in `server/src/services/rateEngine.ts`
+        └── Returns HTTP 200 { priceBreakdown }
+        │
+        ▼
+[Renders Live Itemized Card in client/src/pages/RateSimulatorPage.tsx]
+```
+
+### Module Call Graph (Phase 17)
+* `client/src/pages/RateSimulatorPage.tsx` calls:
+  * `rateApi.simulate()` in `client/src/services/api.ts`
+  * `ZoneMapVisualizer` in `client/src/components/ZoneMapVisualizer.tsx`
+
+
 
 
 

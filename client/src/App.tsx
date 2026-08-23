@@ -9,6 +9,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Layout } from './components/Layout';
 import { ShieldCheck, Cpu, Server } from 'lucide-react';
+import { RateSimulatorPage } from './pages/RateSimulatorPage';
 
 // Baseline Welcome Dashboard View
 function DashboardHome() {
@@ -73,6 +74,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<DashboardHome />} />
             <Route path="/orders" element={<DashboardHome />} />
+            <Route path="/simulator" element={<RateSimulatorPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Layout>

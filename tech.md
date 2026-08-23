@@ -35,6 +35,8 @@ This file catalogs every technology, framework, npm package, and infrastructure 
 | **Frontend State & Theme UI** | React Context + Tailwind | `AuthContext` + Dark Slate Layout | React Context provider managing persistent authentication state alongside an industrial `#09090b` dark-slate layout, role badges, and responsive navigation header. |
 | **Evaluator Demo Switcher** | `DemoRoleSwitcher.tsx` | Floating Glassmorphic Dock | Persistent bottom bar enabling evaluators to switch between Admin, Agent, and Customer accounts in 1 click, rehydrating JWT tokens and unlocking role UI views instantly. |
 | **Interactive Map Engine** | `react-leaflet` (`v4.2.1`) | CartoDB Dark GeoJSON Map | Leaflet map visualizer component rendering GeoJSON zone polygons, custom SVG markers for pickup/drop/agent positions, polyline routes, and click-to-pin location selection. |
+| **Pricing Sandbox Page** | `RateSimulatorPage.tsx` | Real-Time Pricing Playground | Interactive simulator page with sliders for parcel dimensions (L, W, H), actual weight, B2B/B2C order types, COD cash amounts, map pin picking, and live itemized fee breakdown cards. |
+
 
 
 

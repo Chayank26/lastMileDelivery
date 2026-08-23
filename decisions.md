@@ -305,6 +305,23 @@ This file logs every meaningful architectural, technological, and design decisio
   * `MapClickHandler` listens for map click events and triggers `onSelectLocation('pickup' | 'drop', [lng, lat])`.
   * Auto-updates form coordinate inputs and triggers Turf.js point-in-polygon zone matching instantly.
 
+---
+
+## Phase 17: Interactive Rates & Pricing Sandbox Simulator Page
+
+### 41. Decision: Real-Time Ephemeral Sandbox Simulation (`RateSimulatorPage.tsx`)
+* **Context:** Admins and customers need to test how volumetric changes, zone hops, and COD handling fees affect parcel pricing before creating real orders.
+* **Why this approach?**
+  * Executes `/api/rates/simulate` on slider drag or input change.
+  * Evaluates pure rate engine calculations without mutating persistent database records or creating dummy order documents.
+
+### 42. Decision: Dual-Column Interactive Map & Line-Item Breakdown
+* **Context:** Visualizing spatial zone boundaries alongside itemized fee breakdowns helps users understand exactly why a price surged.
+* **Why this approach?**
+  * Integrates `ZoneMapVisualizer` for pin selection on the left column.
+  * Renders itemized cost line items (Base Fare, Volumetric Surge, Zone Surcharge, COD Fee, Margin %) on the right column.
+
+
 
 
 
