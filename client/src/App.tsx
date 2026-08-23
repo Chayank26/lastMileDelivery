@@ -13,6 +13,7 @@ import { RateSimulatorPage } from './pages/RateSimulatorPage';
 import { ZoneManagementPage } from './pages/ZoneManagementPage';
 import { OrderManagementPage } from './pages/OrderManagementPage';
 import { AgentDutyConsolePage } from './pages/AgentDutyConsolePage';
+import { PublicTrackingPage } from './pages/PublicTrackingPage';
 
 // Baseline Welcome Dashboard View
 function DashboardHome() {
@@ -80,6 +81,8 @@ export default function App() {
             <Route path="/simulator" element={<RateSimulatorPage />} />
             <Route path="/zones" element={<ZoneManagementPage />} />
             <Route path="/agent-dashboard" element={<AgentDutyConsolePage />} />
+            <Route path="/track-search" element={<PublicTrackingPage />} />
+            <Route path="/track/:trackingId" element={<PublicTrackingPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Layout>

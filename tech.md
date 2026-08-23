@@ -39,6 +39,8 @@ This file catalogs every technology, framework, npm package, and infrastructure 
 | **Zone Management Page** | `ZoneManagementPage.tsx` | GeoJSON Polygon Admin Page | Admin spatial management view with 1-click NCR zone seeding, registered zone data table, GeoJSON polygon visualizer, and raw coordinate editor modal. |
 | **Dispatch Command Center** | `OrderManagementPage.tsx` | Socket.io Live Dispatch | Central dispatch dashboard featuring real-time WebSockets event stream, Agentic AI address autocomplete modal, 1-click auto-assignment, manual driver dispatch, and failure reschedule controls. |
 | **Agent Duty Console** | `AgentDutyConsolePage.tsx` | Driver Mobile Duty App | Mobile-responsive driver portal for setting active duty status, streaming live GPS coordinates, and marking shipment lifecycle transitions with diagnostic failure reporting. |
+| **Public Tracking Page** | `PublicTrackingPage.tsx` | Socket.io Live Timeline | Unauthenticated tracking view with Socket.io room subscription (`order:${id}`), progress stepper timeline, Leaflet route map, immutable audit log table, and customer failure reschedule form. |
+
 
 
 

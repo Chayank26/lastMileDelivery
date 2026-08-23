@@ -564,6 +564,32 @@ This file details the runtime flow, entrypoints, sequence of execution, and call
 * `client/src/pages/AgentDutyConsolePage.tsx` calls:
   * `orderApi.getAll()`, `orderApi.updateStatus()`, `agentApi.updateStatus()` in `client/src/services/api.ts`
 
+---
+
+## Phase 20 Execution & Public Tracking Timeline Flow
+
+```
+[Public Visitor Opens client/src/pages/PublicTrackingPage.tsx]
+        │
+        ├── 1. Fetches tracking details via `orderApi.trackByCode()` (`GET /api/orders/track/:trackingId`)
+        │
+        ├── 2. Subscribes Socket.io to room `order:${orderId}`
+        │     └── Listens for `order:status_updated` / `order:assigned` ──► Re-renders stepper & map
+        │
+        ├── 3. Renders Progress Stepper (`CREATED` ➔ `PICKED_UP` ➔ `IN_TRANSIT` ➔ `OUT_FOR_DELIVERY` ➔ `DELIVERED`)
+        ├── 4. Renders Interactive Leaflet Map & Driver Location Pin (`ZoneMapVisualizer`)
+        ├── 5. Renders Immutable Event Audit Log Ledger Table
+        │
+        └── 6. If FAILED status: Renders Customer Reschedule Diagnostic Form
+              └── Submits updated date / address / payment terms ──► Calls `orderApi.reschedule()`
+```
+
+### Module Call Graph (Phase 20)
+* `client/src/pages/PublicTrackingPage.tsx` calls:
+  * `orderApi.trackByCode()`, `orderApi.reschedule()` in `client/src/services/api.ts`
+  * `ZoneMapVisualizer` in `client/src/components/ZoneMapVisualizer.tsx`
+
+
 
 
 

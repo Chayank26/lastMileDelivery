@@ -358,6 +358,29 @@ This file logs every meaningful architectural, technological, and design decisio
   * Renders a mobile-responsive duty console filtering active shipments assigned to the logged-in agent (`user.id`).
   * Includes GPS coordinate inputs (`longitude`, `latitude`) allowing drivers to broadcast live location telemetries to the Admin map view.
 
+---
+
+## Phase 20: Public Live Order Tracking & Event Audit Timeline Page
+
+### 48. Decision: Unauthenticated Public Tracking Timeline (`PublicTrackingPage.tsx`)
+* **Context:** End-user customers tracking a shipment should not be forced to log in or register an account just to see package delivery progress.
+* **Why this approach?**
+  * Exposes public routes `/track-search` and `/track/:trackingId`.
+  * Allows any user to input a 10-character tracking ID code and view live shipment progress, active driver details, and Leaflet route maps.
+
+### 49. Decision: Socket.io Room-Based Tracking Subscription (`order:${id}`)
+* **Context:** Customers viewing an active delivery timeline want sub-second updates when a driver picks up or delivers their package.
+* **Why this approach?**
+  * Subscribes socket to channel `order:${orderId}` upon mounting `PublicTrackingPage`.
+  * Triggers real-time component state re-fetch when `order:status_updated` or `order:assigned` events fire.
+
+### 50. Decision: Immutable Event Audit Log Ledger Table
+* **Context:** Transparency and auditability require showing every state change, actor role, IP address, and timestamp.
+* **Why this approach?**
+  * Displays event audit records fetched from `OrderAuditLog` in chronological sequence.
+  * Proves system auditability for evaluator assessment.
+
+
 
 
 
