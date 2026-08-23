@@ -289,6 +289,23 @@ This file logs every meaningful architectural, technological, and design decisio
 * **Why this approach?**
   * Includes a minimize/expand toggle button (`ChevronDown`/`ChevronUp`), allowing evaluators to collapse the switcher bar whenever they want full screen real estate.
 
+---
+
+## Phase 16: Interactive Leaflet Map & GeoJSON Zone Visualizer Component
+
+### 39. Decision: CartoDB Dark Mode Tile Layer for Leaflet Map (`ZoneMapVisualizer.tsx`)
+* **Context:** The application UI adheres to an industrial `#09090b` dark-slate design aesthetic. Default OpenStreetMap bright white tiles clash visually with dark mode.
+* **Why this approach?**
+  * CartoDB Dark All tiles (`basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png`) provide a sleek, high-contrast dark basemap.
+  * Allows colored GeoJSON zone polygons (`#6366f1` Indigo, `#10b981` Emerald) and custom SVG location markers to stand out clearly.
+
+### 40. Decision: Interactive Pin Location Selection Mode (`useMapEvents`)
+* **Context:** Customers and admins creating orders or estimating rates need to pick pickup and drop coordinates visually by clicking on the map.
+* **Why this approach?**
+  * `MapClickHandler` listens for map click events and triggers `onSelectLocation('pickup' | 'drop', [lng, lat])`.
+  * Auto-updates form coordinate inputs and triggers Turf.js point-in-polygon zone matching instantly.
+
+
 
 
 

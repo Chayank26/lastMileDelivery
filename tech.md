@@ -34,6 +34,8 @@ This file catalogs every technology, framework, npm package, and infrastructure 
 | **Frontend HTTP Client** | `axios` (`v1.6.8`) | Centralized Axios Interceptor | HTTP client configured with request interceptors to automatically inject local JWT Bearer tokens and handle 401 unauthorized session expiration. |
 | **Frontend State & Theme UI** | React Context + Tailwind | `AuthContext` + Dark Slate Layout | React Context provider managing persistent authentication state alongside an industrial `#09090b` dark-slate layout, role badges, and responsive navigation header. |
 | **Evaluator Demo Switcher** | `DemoRoleSwitcher.tsx` | Floating Glassmorphic Dock | Persistent bottom bar enabling evaluators to switch between Admin, Agent, and Customer accounts in 1 click, rehydrating JWT tokens and unlocking role UI views instantly. |
+| **Interactive Map Engine** | `react-leaflet` (`v4.2.1`) | CartoDB Dark GeoJSON Map | Leaflet map visualizer component rendering GeoJSON zone polygons, custom SVG markers for pickup/drop/agent positions, polyline routes, and click-to-pin location selection. |
+
 
 
 

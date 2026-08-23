@@ -473,6 +473,27 @@ This file details the runtime flow, entrypoints, sequence of execution, and call
 * `client/src/context/AuthContext.tsx` calls:
   * `authApi.demoLogin` in `client/src/services/api.ts`
 
+---
+
+## Phase 16 Execution & Interactive Leaflet Map Rendering Flow
+
+```
+[Component Mount: client/src/components/ZoneMapVisualizer.tsx]
+        │
+        ├── Renders CartoDB Dark Mode Tile Layer
+        ├── Iterates `zones` array ──► Renders GeoJSON Polygons with zone stroke colors
+        ├── Renders Markers: Pickup (Green), Drop (Red), Agent (Blue)
+        ├── Connects Pickup & Drop with dashed Polyline
+        │
+        └── User Clicks Map:
+              └── `MapClickHandler` captures `latlng` ──► Triggers `onSelectLocation(type, [lng, lat])`
+```
+
+### Module Call Graph (Phase 16)
+* `client/src/components/ZoneMapVisualizer.tsx` calls:
+  * `MapContainer`, `TileLayer`, `Polygon`, `Marker`, `Polyline`, `useMapEvents` from `react-leaflet`
+
+
 
 
 
