@@ -274,6 +274,22 @@ This file logs every meaningful architectural, technological, and design decisio
   * `AuthProvider` rehydrates profile state on initial page mount via `GET /api/auth/me`.
   * Provides atomic helper methods `login()`, `demoLogin()`, and `logout()` for seamless role transitions.
 
+---
+
+## Phase 15: Evaluator Demo Role Switcher Floating Bar (Frontend)
+
+### 37. Decision: Persistent Floating Bottom Dock Widget (`DemoRoleSwitcher.tsx`)
+* **Context:** Evaluators reviewing submissions spend less than 3 minutes testing candidate applications and dislike registering 3 different accounts to verify Admin, Agent, and Customer workflows.
+* **Why this approach?**
+  * Mounting `DemoRoleSwitcher` as a fixed glassmorphic bottom dock allows evaluators to jump between Admin, Agent (Karan), and B2B Customer (Apex Logistics) roles in a single click.
+  * Auto-seeds demo accounts on demand via `POST /api/auth/demo-login` and updates the entire application state instantly without page reloads.
+
+### 38. Decision: Collapsible Glassmorphic Dock Design
+* **Context:** Evaluators need to view full page content, maps, and tables without fixed UI widgets obstructing operational buttons.
+* **Why this approach?**
+  * Includes a minimize/expand toggle button (`ChevronDown`/`ChevronUp`), allowing evaluators to collapse the switcher bar whenever they want full screen real estate.
+
+
 
 
 

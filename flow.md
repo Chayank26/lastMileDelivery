@@ -448,6 +448,32 @@ This file details the runtime flow, entrypoints, sequence of execution, and call
   * `authApi.getMe()`, `authApi.login()`, `authApi.demoLogin()` in `client/src/services/api.ts`
 * `client/src/services/api.ts` uses Axios instance with request token interceptor
 
+---
+
+## Phase 15 Execution & Demo Role Switcher Interaction Flow
+
+```
+[Evaluator Clicks Role Button in client/src/components/DemoRoleSwitcher.tsx]
+        │
+        ▼
+[Invokes demoLogin(targetRole) in client/src/context/AuthContext.tsx]
+        │
+        ▼
+[API Request: POST /api/auth/demo-login via client/src/services/api.ts]
+        │
+        ├── Backend seeds account & returns JWT access token + user details
+        ├── Updates localStorage ('last_mile_token') & React Context state
+        ├── Re-renders Navbar (`client/src/components/Navbar.tsx`) with updated role badge
+        └── Unlocks role-specific UI routes immediately
+```
+
+### Module Call Graph (Phase 15)
+* `client/src/components/DemoRoleSwitcher.tsx` calls:
+  * `demoLogin(role)` in `client/src/context/AuthContext.tsx`
+* `client/src/context/AuthContext.tsx` calls:
+  * `authApi.demoLogin` in `client/src/services/api.ts`
+
+
 
 
 
