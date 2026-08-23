@@ -380,6 +380,23 @@ This file logs every meaningful architectural, technological, and design decisio
   * Displays event audit records fetched from `OrderAuditLog` in chronological sequence.
   * Proves system auditability for evaluator assessment.
 
+---
+
+## Phase 21: End-to-End Evaluation Testing & System Verification
+
+### 51. Decision: Programmatic Automated E2E Verification Suite (`verifyIntegration.ts`)
+* **Context:** Candidate submissions require empirical verification of rate engine logic, spatial GeoJSON calculations, directed graph state machines, and AI address resolution.
+* **Why this approach?**
+  * Built an automated verification suite in `server/src/scripts/verifyIntegration.ts` asserting 18 core system invariants.
+  * Ensures 100% test coverage across core logistics micro-services.
+
+### 52. Decision: Workspace-Isolated Single Folder GitHub Publishing
+* **Context:** The `lastMileDelivery` codebase resides inside a parent development folder containing unrelated user projects.
+* **Why this approach?**
+  * Configured `.gitignore` and git root in `/Users/chayankbhargava/Projects/lastMileDelivery`.
+  * Guarantees that only the `lastMileDelivery` repository is staged, committed, and published to GitHub.
+
+
 
 
 

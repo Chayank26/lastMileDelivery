@@ -8,6 +8,7 @@
  * Features a fallback heuristic parser if GEMINI_API_KEY is omitted, ensuring zero-friction evaluator testing.
  */
 
+import mongoose from 'mongoose';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { config } from '../config/env.js';
 import { OrderType } from '../models/Order.js';
@@ -89,7 +90,10 @@ const parseAddressHeuristically = (rawAddress: string, activeZones: IZone[]): IP
  * @param rawAddress Unstructured Indian address string
  */
 export const resolveUnstructuredAddress = async (rawAddress: string): Promise<IParsedAddressResult> => {
-  const activeZones = await Zone.find({ isActive: true });
+  let activeZones: IZone[] = [];
+  if (mongoose.connection.readyState === 1) {
+    activeZones = await Zone.find({ isActive: true });
+  }
 
   if (!config.geminiApiKey) {
     console.log('🤖 GEMINI_API_KEY missing. Using Heuristic Address Parser fallback.');

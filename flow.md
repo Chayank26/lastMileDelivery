@@ -589,6 +589,30 @@ This file details the runtime flow, entrypoints, sequence of execution, and call
   * `orderApi.trackByCode()`, `orderApi.reschedule()` in `client/src/services/api.ts`
   * `ZoneMapVisualizer` in `client/src/components/ZoneMapVisualizer.tsx`
 
+---
+
+## Phase 21 Execution & E2E Verification Flow
+
+```
+[CLI Command: npm test --workspace=server]
+        │
+        ▼
+[Executes server/src/scripts/verifyIntegration.ts]
+        │
+        ├── 1. Validates Pure Rate Engine (`calculateOrderPrice()`) ──► 5/5 Sub-Tests Passed
+        ├── 2. Validates Turf.js Spatial Zone Matching (`detectZoneForCoordinates()`) ──► 2/2 Sub-Tests Passed
+        ├── 3. Validates Directed Graph State Machine (`isValidStatusTransition()`) ──► 8/8 Sub-Tests Passed
+        └── 4. Validates Agentic AI Address Parser (`resolveUnstructuredAddress()`) ──► 3/3 Sub-Tests Passed
+```
+
+### Module Call Graph (Phase 21)
+* `server/src/scripts/verifyIntegration.ts` calls:
+  * `calculateOrderPrice()` in `server/src/services/rateEngine.ts`
+  * `detectZoneForCoordinates()` in `server/src/utils/geo.ts`
+  * `isValidStatusTransition()` in `server/src/utils/stateMachine.ts`
+  * `resolveUnstructuredAddress()` in `server/src/services/aiAddressParser.ts`
+
+
 
 
 

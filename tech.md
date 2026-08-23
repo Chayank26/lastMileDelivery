@@ -40,6 +40,8 @@ This file catalogs every technology, framework, npm package, and infrastructure 
 | **Dispatch Command Center** | `OrderManagementPage.tsx` | Socket.io Live Dispatch | Central dispatch dashboard featuring real-time WebSockets event stream, Agentic AI address autocomplete modal, 1-click auto-assignment, manual driver dispatch, and failure reschedule controls. |
 | **Agent Duty Console** | `AgentDutyConsolePage.tsx` | Driver Mobile Duty App | Mobile-responsive driver portal for setting active duty status, streaming live GPS coordinates, and marking shipment lifecycle transitions with diagnostic failure reporting. |
 | **Public Tracking Page** | `PublicTrackingPage.tsx` | Socket.io Live Timeline | Unauthenticated tracking view with Socket.io room subscription (`order:${id}`), progress stepper timeline, Leaflet route map, immutable audit log table, and customer failure reschedule form. |
+| **System Verification Suite** | `verifyIntegration.ts` | Automated E2E Test Suite | CLI integration test runner programmatically verifying 18 system invariants across pure rate engines, Turf.js GeoJSON zone detectors, directed graph state validators, and Agentic AI address parsers. |
+
 
 
 
