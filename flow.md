@@ -365,6 +365,30 @@ This file details the runtime flow, entrypoints, sequence of execution, and call
 * `server/src/controllers/agentController.ts` calls:
   * `emitAgentLocationUpdated(agentId, location)`
 
+---
+
+## Phase 12 Execution & Automated Notification Flow
+
+```
+[Order Controller Mutation Event: server/src/controllers/orderController.ts]
+        │
+        ├── Order Created ──► `notifyOrderCreated(order, customer)`
+        └── Status Changed ──► `notifyOrderStatusChanged(order, customer, agent)`
+              │
+              ▼
+[Notification Service: server/src/services/notificationService.ts]
+        │
+        ├── 1. Generates HTML email template with status badges and live tracking links (`/track/:trackingId`)
+        ├── 2. Dispatches Email via Nodemailer SMTP (`nodemailer.createTransport()`)
+        └── 3. Dispatches SMS alert via `sendSMSNotification()` (Twilio / console logger)
+```
+
+### Module Call Graph (Phase 12)
+* `server/src/controllers/orderController.ts` calls:
+  * `notifyOrderCreated` in `server/src/services/notificationService.ts`
+  * `notifyOrderStatusChanged` in `server/src/services/notificationService.ts`
+
+
 
 
 

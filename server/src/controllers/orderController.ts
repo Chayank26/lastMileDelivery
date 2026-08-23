@@ -23,6 +23,10 @@ import {
   emitOrderAssigned,
   emitOrderStatusUpdated,
 } from '../socket.js';
+import {
+  notifyOrderCreated,
+  notifyOrderStatusChanged,
+} from '../services/notificationService.js';
 
 /**
  * Controller: Create a New Delivery Order (Customer or Admin-on-behalf).
@@ -196,6 +200,13 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
 
     // Emit real-time WebSocket event to Admin command center
     emitOrderCreated(newOrder);
+
+    // Asynchronously dispatch Email & SMS notifications to customer (non-blocking)
+    User.findById(targetCustomerId).then((customerObj) => {
+      if (customerObj) {
+        notifyOrderCreated(newOrder, customerObj);
+      }
+    });
 
     res.status(201).json({
       message: 'Order created successfully',
@@ -595,6 +606,9 @@ export const updateOrderStatus = async (req: Request, res: Response): Promise<vo
         assignedAgentId: populatedOrder.assignedAgent ? (populatedOrder.assignedAgent as any)._id : undefined,
         failureReasonCode: populatedOrder.failureReasonCode,
       });
+
+      // Asynchronously dispatch Email & SMS notification to customer (non-blocking)
+      notifyOrderStatusChanged(populatedOrder, populatedOrder.customer, populatedOrder.assignedAgent);
     }
 
     res.status(200).json({
@@ -770,6 +784,10 @@ export const rescheduleOrder = async (req: Request, res: Response): Promise<void
       .populate('assignedAgent', 'name phone')
       .populate('pickupZone', 'name code colorHex')
       .populate('dropZone', 'name code colorHex');
+
+    if (populatedOrder) {
+      notifyOrderStatusChanged(populatedOrder, populatedOrder.customer, populatedOrder.assignedAgent);
+    }
 
     res.status(200).json({
       message: 'Order rescheduled successfully and queued for re-delivery attempt.',

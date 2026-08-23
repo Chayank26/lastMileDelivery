@@ -29,6 +29,8 @@ This file catalogs every technology, framework, npm package, and infrastructure 
 | **Order State Machine Validator** | `stateMachine.ts` | Directed Graph Validator | Explicit directed graph state transition validator enforcing legal shipment lifecycles (`CREATED` $\to$ `PICKED_UP` $\to$ `IN_TRANSIT` $\to$ `OUT_FOR_DELIVERY` $\to$ `DELIVERED` / `FAILED`) and releasing agent capacity on terminal states. |
 | **Smart Reschedule Engine** | `/api/orders/:id/reschedule` | Failure Resolution Workflow | Targeted failure diagnostic workflow allowing customers to update delivery dates, correct drop addresses (re-running spatial zone detection & rate recalculation), switch COD to Prepaid, and automatically reassign new agents. |
 | **Real-Time WebSockets Engine** | `socket.io` (`v4.7.5`) | Socket.io WebSockets Gateway | Bi-directional real-time communication engine managing room-based channels (`order:${id}`, `admin`, `agent:${id}`) for live timeline updates, dispatch feeds, and driver position streaming. |
+| **Notification Engine** | `nodemailer` (`v6.9.13`) | Nodemailer + SMS Gateway | Customer notification engine dispatching styled HTML emails with live tracking links and SMS alerts on every status transition (`CREATED`, `OUT_FOR_DELIVERY`, `DELIVERED`, `FAILED`). |
+
 
 
 
