@@ -258,6 +258,23 @@ This file logs every meaningful architectural, technological, and design decisio
   * `parseAddressHeuristically()` uses regex patterns to extract 6-digit Indian pincodes, city keywords (Delhi/Gurgaon/Noida), and commercial terms.
   * Guarantees 100% reliable functionality during evaluator testing even if external API limits or missing keys occur.
 
+---
+
+## Phase 14: Frontend Design System & Theme Layout (Tailwind + Industrial Dark Slate UI)
+
+### 35. Decision: Centralized Axios Instance with Automatic JWT Interceptor (`api.ts`)
+* **Context:** React SPA components need to make authenticated requests to backend REST API endpoints cleanly without manually retrieving and passing `Authorization` headers in every component.
+* **Why this approach?**
+  * Axios request interceptor dynamically injects `Bearer <token>` from `localStorage`.
+  * Response interceptor automatically catches `401 Unauthorized` responses and cleans up expired token state.
+
+### 36. Decision: React AuthContext for Global User Session Hydration (`AuthContext.tsx`)
+* **Context:** User account info and role permissions (`ADMIN`, `AGENT`, `CUSTOMER`) must be globally accessible across page components and navbar badges.
+* **Why this approach?**
+  * `AuthProvider` rehydrates profile state on initial page mount via `GET /api/auth/me`.
+  * Provides atomic helper methods `login()`, `demoLogin()`, and `logout()` for seamless role transitions.
+
+
 
 
 

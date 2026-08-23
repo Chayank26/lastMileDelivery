@@ -418,6 +418,37 @@ This file details the runtime flow, entrypoints, sequence of execution, and call
 * `server/src/routes/aiRoutes.ts` maps:
   * `POST /parse-address` $\rightarrow$ `parseAddress` in `server/src/controllers/aiController.ts` $\rightarrow$ `resolveUnstructuredAddress` in `server/src/services/aiAddressParser.ts` $\rightarrow$ `detectZoneForCoordinates`
 
+---
+
+## Phase 14 Execution & Frontend State Hydration Flow
+
+```
+[Client SPA Boot: client/src/main.tsx]
+        │
+        ▼
+[Root Component: client/src/App.tsx]
+        │
+        ▼
+[AuthProvider: client/src/context/AuthContext.tsx]
+        │
+        ├── Checks localStorage for 'last_mile_token'
+        ├── If token exists ──► Calls `authApi.getMe()` via `client/src/services/api.ts`
+        ├── Hydrates `user` and `role` state
+        │
+        ▼
+[Layout Wrapper: client/src/components/Layout.tsx]
+        │
+        ├── Renders Navbar (`client/src/components/Navbar.tsx`) with active role badge
+        └── Renders Active Route View
+```
+
+### Module Call Graph (Phase 14)
+* `client/src/App.tsx` renders `AuthProvider` and `Layout`
+* `client/src/context/AuthContext.tsx` calls:
+  * `authApi.getMe()`, `authApi.login()`, `authApi.demoLogin()` in `client/src/services/api.ts`
+* `client/src/services/api.ts` uses Axios instance with request token interceptor
+
+
 
 
 

@@ -31,6 +31,9 @@ This file catalogs every technology, framework, npm package, and infrastructure 
 | **Real-Time WebSockets Engine** | `socket.io` (`v4.7.5`) | Socket.io WebSockets Gateway | Bi-directional real-time communication engine managing room-based channels (`order:${id}`, `admin`, `agent:${id}`) for live timeline updates, dispatch feeds, and driver position streaming. |
 | **Notification Engine** | `nodemailer` (`v6.9.13`) | Nodemailer + SMS Gateway | Customer notification engine dispatching styled HTML emails with live tracking links and SMS alerts on every status transition (`CREATED`, `OUT_FOR_DELIVERY`, `DELIVERED`, `FAILED`). |
 | **Agentic AI Resolution Engine** | `@google/generative-ai` (`v0.11.1`) | Google Gemini LLM API | AI address parsing engine using Gemini 1.5 Flash to extract structured fields (street, pincode, city, landmark, floor), infer B2B/B2C, and auto-detect GeoJSON zones with heuristic regex fallback. |
+| **Frontend HTTP Client** | `axios` (`v1.6.8`) | Centralized Axios Interceptor | HTTP client configured with request interceptors to automatically inject local JWT Bearer tokens and handle 401 unauthorized session expiration. |
+| **Frontend State & Theme UI** | React Context + Tailwind | `AuthContext` + Dark Slate Layout | React Context provider managing persistent authentication state alongside an industrial `#09090b` dark-slate layout, role badges, and responsive navigation header. |
+
 
 
 
