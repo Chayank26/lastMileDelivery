@@ -210,6 +210,24 @@ This file logs every meaningful architectural, technological, and design decisio
   * Rescheduling un-binds the previous agent and automatically invokes `executeAutoAssignment()` within the session transaction.
   * Instantly queues the order with a fresh, available agent and appends attempt records to `order.rescheduleHistory`.
 
+---
+
+## Phase 11: Real-Time WebSockets Engine (Socket.io)
+
+### 29. Decision: Bi-Directional WebSockets (Socket.io) over Polling
+* **Context:** Customers tracking an order and Admins monitoring system dispatch need instant updates when an order is picked up or delivered without repeatedly refreshing the page.
+* **Why this approach?**
+  * HTTP polling creates unnecessary database load and network latency.
+  * Socket.io provides persistent bi-directional WebSocket connections with fallback transports (`polling`), enabling sub-second timeline transitions on customer dashboards.
+
+### 30. Decision: Room-Based Channel Architecture (`order:${id}`, `admin`, `agent:${id}`)
+* **Context:** Transmitting every system event to all connected clients wastes network bandwidth and compromises privacy.
+* **Why this approach?**
+  * `socket.join('order:' + id)` ensures customer clients only receive status updates for their specific order.
+  * `socket.join('admin')` streams system-wide creation and dispatch feeds exclusively to operational managers.
+  * `socket.join('agent:' + agentId)` delivers instant assignment alerts directly to the assigned delivery driver.
+
+
 
 
 

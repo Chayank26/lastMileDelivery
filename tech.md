@@ -28,6 +28,8 @@ This file catalogs every technology, framework, npm package, and infrastructure 
 | **Agent Auto-Assignment Engine** | `assignmentEngine.ts` | Greedy Haversine Assignment | Nearest-neighbor agent matching algorithm combining Turf.js spherical distance, primary zone bias, concurrency limits (`maxConcurrentOrders`), and ACID session locking to prevent race conditions. |
 | **Order State Machine Validator** | `stateMachine.ts` | Directed Graph Validator | Explicit directed graph state transition validator enforcing legal shipment lifecycles (`CREATED` $\to$ `PICKED_UP` $\to$ `IN_TRANSIT` $\to$ `OUT_FOR_DELIVERY` $\to$ `DELIVERED` / `FAILED`) and releasing agent capacity on terminal states. |
 | **Smart Reschedule Engine** | `/api/orders/:id/reschedule` | Failure Resolution Workflow | Targeted failure diagnostic workflow allowing customers to update delivery dates, correct drop addresses (re-running spatial zone detection & rate recalculation), switch COD to Prepaid, and automatically reassign new agents. |
+| **Real-Time WebSockets Engine** | `socket.io` (`v4.7.5`) | Socket.io WebSockets Gateway | Bi-directional real-time communication engine managing room-based channels (`order:${id}`, `admin`, `agent:${id}`) for live timeline updates, dispatch feeds, and driver position streaming. |
+
 
 
 

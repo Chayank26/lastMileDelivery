@@ -18,6 +18,11 @@ import { detectZoneForCoordinates } from '../utils/geo.js';
 import { generateTrackingId } from '../utils/trackingId.js';
 import { isValidStatusTransition } from '../utils/stateMachine.js';
 import { runInTransaction } from '../config/db.js';
+import {
+  emitOrderCreated,
+  emitOrderAssigned,
+  emitOrderStatusUpdated,
+} from '../socket.js';
 
 /**
  * Controller: Create a New Delivery Order (Customer or Admin-on-behalf).
@@ -189,6 +194,9 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       return createdOrder;
     });
 
+    // Emit real-time WebSocket event to Admin command center
+    emitOrderCreated(newOrder);
+
     res.status(201).json({
       message: 'Order created successfully',
       trackingId: newOrder.trackingId,
@@ -345,6 +353,14 @@ export const autoAssignOrder = async (req: Request, res: Response): Promise<void
     const updatedOrder = await Order.findById(order._id)
       .populate('customer', 'name email phone')
       .populate('assignedAgent', 'name phone');
+
+    if (updatedOrder && result.assignedAgent) {
+      emitOrderAssigned(updatedOrder._id.toString(), result.assignedAgent.user._id.toString(), {
+        trackingId: updatedOrder.trackingId,
+        assignedAgent: updatedOrder.assignedAgent,
+        distanceKm: result.distanceKm,
+      });
+    }
 
     res.status(200).json({
       message: result.message,
@@ -571,6 +587,15 @@ export const updateOrderStatus = async (req: Request, res: Response): Promise<vo
       .populate('assignedAgent', 'name phone')
       .populate('pickupZone', 'name code colorHex')
       .populate('dropZone', 'name code colorHex');
+
+    if (populatedOrder) {
+      emitOrderStatusUpdated(populatedOrder._id.toString(), {
+        status: populatedOrder.status,
+        trackingId: populatedOrder.trackingId,
+        assignedAgentId: populatedOrder.assignedAgent ? (populatedOrder.assignedAgent as any)._id : undefined,
+        failureReasonCode: populatedOrder.failureReasonCode,
+      });
+    }
 
     res.status(200).json({
       message: `Order status updated from '${updatedOrder.status}' successfully`,

@@ -334,6 +334,38 @@ This file details the runtime flow, entrypoints, sequence of execution, and call
 * `server/src/routes/orderRoutes.ts` maps:
   * `POST /:id/reschedule` $\rightarrow$ `authenticate` $\rightarrow$ `rescheduleOrder` in `server/src/controllers/orderController.ts` $\rightarrow$ `detectZoneForCoordinates`, `calculateOrderPrice`, `executeAutoAssignment`
 
+---
+
+## Phase 11 Execution & Real-Time Socket.io Event Flow
+
+```
+[WebSocket Gateway: server/src/socket.ts]
+        │
+        ├── Client Connects & Subscribes:
+        │     ├── `subscribe:order` (orderId) ──► Joins Room: `order:${orderId}`
+        │     ├── `subscribe:admin`           ──► Joins Room: `admin`
+        │     └── `subscribe:agent` (agentId) ──► Joins Room: `agent:${agentId}`
+        │
+        ├── Triggered by Mutations in `server/src/controllers/orderController.ts`:
+        │     ├── Order Created      ──► Emits `order:created` to `admin`
+        │     ├── Agent Assigned     ──► Emits `order:assigned` to `order:${id}`, `agent:${agentId}`, `admin`
+        │     └── Status Transition  ──► Emits `order:status_updated` to `order:${id}`, `agent:${agentId}`, `admin`
+        │
+        └── Triggered by Mutations in `server/src/controllers/agentController.ts`:
+              └── Location Update    ──► Emits `agent:location_updated` to `admin`
+```
+
+### Module Call Graph (Phase 11)
+* `server/src/index.ts` calls:
+  * `initSocketServer(server)` in `server/src/socket.ts`
+* `server/src/controllers/orderController.ts` calls:
+  * `emitOrderCreated(order)`
+  * `emitOrderAssigned(orderId, agentId, payload)`
+  * `emitOrderStatusUpdated(orderId, payload)`
+* `server/src/controllers/agentController.ts` calls:
+  * `emitAgentLocationUpdated(agentId, location)`
+
+
 
 
 

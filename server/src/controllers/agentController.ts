@@ -8,6 +8,7 @@
 import { Request, Response } from 'express';
 import { AgentProfile, AgentStatus } from '../models/AgentProfile.js';
 import { User, UserRole } from '../models/User.js';
+import { emitAgentLocationUpdated } from '../socket.js';
 
 /**
  * Controller: Get List of All Active Delivery Agents (Admin map & dispatch overview).
@@ -63,6 +64,13 @@ export const updateAgentStatus = async (req: Request, res: Response): Promise<vo
     }
 
     await agent.save();
+
+    // Broadcast real-time agent location update to active socket rooms
+    emitAgentLocationUpdated(user._id.toString(), {
+      coordinates: agent.currentLocation.coordinates,
+      status: agent.status,
+      name: user.name,
+    });
 
     res.status(200).json({ message: 'Agent status updated successfully', agent });
   } catch (error: any) {
