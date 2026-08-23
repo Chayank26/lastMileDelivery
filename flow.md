@@ -539,6 +539,32 @@ This file details the runtime flow, entrypoints, sequence of execution, and call
   * `zoneApi.getAll()`, `zoneApi.seedSamples()`, `zoneApi.create()` in `client/src/services/api.ts`
   * `ZoneMapVisualizer` in `client/src/components/ZoneMapVisualizer.tsx`
 
+---
+
+## Phase 19 Execution & Dispatch Command Center Flow
+
+```
+[Dispatch Manager Opens client/src/pages/OrderManagementPage.tsx]
+        │
+        ├── 1. Subscribes to Socket.io `admin` room (`subscribe:admin`)
+        │     └── Listens for `order:created`, `order:assigned`, `order:status_updated` ──► Re-fetches dispatch table
+        │
+        ├── 2. User Clicks 'AI Auto-Fill' in Order Modal ──► Calls `aiApi.parseAddress()` ──► Fills form fields
+        │
+        ├── 3. Admin Clicks 'Auto-Assign' ──► Calls `orderApi.autoAssign()` ──► Triggers greedy Haversine solver
+        │
+        └── 4. Driver Opens client/src/pages/AgentDutyConsolePage.tsx
+              ├── Broadcasts GPS location coordinates via `agentApi.updateStatus()`
+              └── Marks lifecycle buttons (`PICKED_UP`, `OUT_FOR_DELIVERY`, `DELIVERED`, `FAILED`)
+```
+
+### Module Call Graph (Phase 19)
+* `client/src/pages/OrderManagementPage.tsx` calls:
+  * `orderApi.getAll()`, `orderApi.create()`, `orderApi.autoAssign()`, `orderApi.manualAssign()`, `aiApi.parseAddress()` in `client/src/services/api.ts`
+* `client/src/pages/AgentDutyConsolePage.tsx` calls:
+  * `orderApi.getAll()`, `orderApi.updateStatus()`, `agentApi.updateStatus()` in `client/src/services/api.ts`
+
+
 
 
 

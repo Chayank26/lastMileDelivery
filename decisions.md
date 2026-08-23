@@ -337,6 +337,28 @@ This file logs every meaningful architectural, technological, and design decisio
   * Provides a modal accepting JSON arrays of polygon ring coordinates `[[[lng, lat], ...]]`.
   * Validates JSON structure before invoking `zoneApi.create()` and renders the newly created zone on the Leaflet map overlay immediately.
 
+---
+
+## Phase 19: Delivery Order Dispatch Command Center & Agent Duty Console Page
+
+### 45. Decision: Admin Dispatch Command Center with Real-Time Socket.io Stream (`OrderManagementPage.tsx`)
+* **Context:** Dispatch managers monitoring active logistics operations need a central dashboard to trigger auto-assignment, manually reassign drivers, and track shipment status live.
+* **Why this approach?**
+  * Listens to Socket.io `order:created`, `order:assigned`, and `order:status_updated` events.
+  * Dynamically re-fetches and updates shipment table rows in real-time without requiring manual page refreshes.
+
+### 46. Decision: Agentic AI Address Autocomplete Integration in Order Creation Modal
+* **Context:** Users creating new shipments often input unstructured Indian address text (e.g. *"Opposite Apollo Pharmacy near Green Park metro, Delhi 110016"*).
+* **Why this approach?**
+  * Embedding an "AI Auto-Fill" button invoking `aiApi.parseAddress()` extracts structured street, city, pincode, coordinates, and B2B/B2C order categories directly into the order creation form.
+
+### 47. Decision: Driver Duty Console & GPS Telemetry Simulator (`AgentDutyConsolePage.tsx`)
+* **Context:** Delivery drivers operate on mobile screens and need simple, 1-click status lifecycle buttons (`Mark Picked Up`, `Out for Delivery`, `Delivered`, `Report Failure`).
+* **Why this approach?**
+  * Renders a mobile-responsive duty console filtering active shipments assigned to the logged-in agent (`user.id`).
+  * Includes GPS coordinate inputs (`longitude`, `latitude`) allowing drivers to broadcast live location telemetries to the Admin map view.
+
+
 
 
 
