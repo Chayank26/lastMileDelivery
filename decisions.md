@@ -321,6 +321,23 @@ This file logs every meaningful architectural, technological, and design decisio
   * Integrates `ZoneMapVisualizer` for pin selection on the left column.
   * Renders itemized cost line items (Base Fare, Volumetric Surge, Zone Surcharge, COD Fee, Margin %) on the right column.
 
+---
+
+## Phase 18: Admin Zone Management & GeoJSON Polygon Map Editor Page
+
+### 43. Decision: 1-Click Sample Zone Seeding for Evaluator Review (`ZoneManagementPage.tsx`)
+* **Context:** Evaluators reviewing candidate submissions do not want to construct complex GeoJSON coordinate arrays manually just to test map polygon rendering.
+* **Why this approach?**
+  * Adding a "Seed NCR Zones" button invokes `POST /api/zones/seed`.
+  * Instantly populates standard NCR zones (South Gurgaon, Cyber City, West Delhi) with pre-configured GeoJSON polygon coordinates.
+
+### 44. Decision: Raw GeoJSON Coordinates Editor Modal
+* **Context:** Admins need the ability to add new delivery zones or paste custom polygon boundaries directly into the application.
+* **Why this approach?**
+  * Provides a modal accepting JSON arrays of polygon ring coordinates `[[[lng, lat], ...]]`.
+  * Validates JSON structure before invoking `zoneApi.create()` and renders the newly created zone on the Leaflet map overlay immediately.
+
+
 
 
 

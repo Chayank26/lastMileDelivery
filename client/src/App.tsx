@@ -10,6 +10,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { Layout } from './components/Layout';
 import { ShieldCheck, Cpu, Server } from 'lucide-react';
 import { RateSimulatorPage } from './pages/RateSimulatorPage';
+import { ZoneManagementPage } from './pages/ZoneManagementPage';
 
 // Baseline Welcome Dashboard View
 function DashboardHome() {
@@ -75,6 +76,7 @@ export default function App() {
             <Route path="/" element={<DashboardHome />} />
             <Route path="/orders" element={<DashboardHome />} />
             <Route path="/simulator" element={<RateSimulatorPage />} />
+            <Route path="/zones" element={<ZoneManagementPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Layout>

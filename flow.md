@@ -519,6 +519,27 @@ This file details the runtime flow, entrypoints, sequence of execution, and call
   * `rateApi.simulate()` in `client/src/services/api.ts`
   * `ZoneMapVisualizer` in `client/src/components/ZoneMapVisualizer.tsx`
 
+---
+
+## Phase 18 Execution & Zone Management Flow
+
+```
+[Admin Opens client/src/pages/ZoneManagementPage.tsx]
+        │
+        ├── 1. Fetches active zones via `zoneApi.getAll()` ──► Renders data table & Leaflet polygon map
+        │
+        ├── 2. Admin Clicks 'Seed NCR Zones' ──► Calls `zoneApi.seedSamples()` (`POST /api/zones/seed`)
+        │
+        └── 3. Admin Submits New GeoJSON Zone:
+              └── Validates JSON `[[[lng, lat], ...]]` ──► Calls `zoneApi.create()` ──► Re-renders map overlay
+```
+
+### Module Call Graph (Phase 18)
+* `client/src/pages/ZoneManagementPage.tsx` calls:
+  * `zoneApi.getAll()`, `zoneApi.seedSamples()`, `zoneApi.create()` in `client/src/services/api.ts`
+  * `ZoneMapVisualizer` in `client/src/components/ZoneMapVisualizer.tsx`
+
+
 
 
 
