@@ -164,19 +164,34 @@ cd lastMileDelivery
 npm install
 ```
 
-### 2. Configure Environment Variables
-Create a `.env` file in the `server` directory (or use default fallbacks):
+### 2. Configure Environment Variables (Optional)
+All environment variables have **built-in zero-friction fallbacks** for instant local testing. You can run the project immediately without a `.env` file, or optionally create a `.env` file in the root directory:
 
 ```env
+# Server Configuration
 PORT=5000
 NODE_ENV=development
+CLIENT_URL=http://localhost:5173
+
+# Database Connection
 MONGODB_URI=mongodb://localhost:27017/last_mile_delivery
+
+# Authentication Security
 JWT_SECRET=super_secret_jwt_key_last_mile_2026
-GEMINI_API_KEY=your_optional_gemini_api_key_here
+JWT_EXPIRES_IN=7d
+
+# Agentic AI Address Resolution (Optional - uses Heuristic Regex Parser if omitted)
+GEMINI_API_KEY=your_google_gemini_api_key_here
+
+# Notification Engine (Optional - uses Ethereal test SMTP fallback if omitted)
+SMTP_HOST=smtp.ethereal.email
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASS=
 ```
 
 ### 3. Run Development Server
-Start both the Express backend server (`localhost:5000`) and the Vite React frontend (`localhost:5173`) concurrently:
+Start both the Express backend server (`localhost:5000`) and the Vite React frontend (`localhost:5173`) concurrently with a single command:
 
 ```bash
 npm run dev
@@ -184,6 +199,17 @@ npm run dev
 
 * **Frontend Client:** `http://localhost:5173`
 * **Backend API Server:** `http://localhost:5000`
+
+---
+
+## Evaluator Quick Demo Walkthrough (30-Second Test)
+
+1. Open **`http://localhost:5173`** in your browser.
+2. Use the **Floating Demo Role Switcher Dock** at the bottom of the screen to switch roles with 1 click:
+   * Click **`ADMIN`** to access the **Dispatch Command Center** (`/orders`), auto-assign drivers, seed GeoJSON zones (`/zones`), or simulate volumetric pricing (`/simulator`).
+   * Click **`KARAN (AGENT)`** to access the **Driver Duty Console** (`/agent-dashboard`), broadcast GPS location coordinates, and update package lifecycle status (*Picked Up*, *In-Transit*, *Delivered*, or *Report Failure*).
+   * Click **`APEX LOGISTICS (CUSTOMER)`** to create new B2B shipment orders or track package timelines (`/track-search`).
+3. Try the **Agentic AI Address Parser**: In the *New Shipment Order* modal on `/orders`, paste an unstructured Indian address like `"Opposite Apollo Pharmacy near Green Park metro, Delhi 110016"` and click **`AI AUTO-FILL`**.
 
 ---
 
