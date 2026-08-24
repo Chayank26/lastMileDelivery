@@ -1,11 +1,11 @@
-# 📦 Last-Mile Delivery Management Platform
+# Last-Mile Delivery Management Platform
 
 > **Production-Ready Enterprise Logistics & Dispatch Control System**  
 > *Featuring Dynamic Volumetric Pricing, GeoJSON Spatial Zoning, ACID Nearest-Neighbor Auto-Assignment, Agentic AI Address Resolution, Real-Time WebSockets Telemetry, and Neo-Brutalist Technical Blueprint Design System.*
 
 ---
 
-## 🌟 Executive Overview
+## Executive Overview
 
 The **Last-Mile Delivery Management Platform** is a full-stack logistics operational control platform built to handle complex urban courier dispatches, dynamic rate evaluation, real-time driver tracking, and failure rescheduling.
 
@@ -13,7 +13,7 @@ The system incorporates **Pure Rate Engine calculations**, **Turf.js GeoJSON poi
 
 ---
 
-## 🎨 Technical Blueprint Neo-Brutalist Design System
+## Technical Blueprint Neo-Brutalist Design System
 
 The application features a **High-Contrast Technical Blueprint UI Design System**:
 * **Canvas Background:** Off-white radial dot-matrix grid (`#f4f4f6` with 18px radial dot grid pattern).
@@ -24,9 +24,9 @@ The application features a **High-Contrast Technical Blueprint UI Design System*
 
 ---
 
-## 🚀 Key Features & Architectural Modules
+## Key Features & Architectural Modules
 
-### 1. 🧮 Pure Rate Engine & Volumetric Pricing (`/simulator`)
+### 1. Pure Rate Engine & Volumetric Pricing (`/simulator`)
 * **Volumetric Billing Calculation:** Automatically computes volumetric weight:
   $$\text{Volumetric Weight (kg)} = \frac{\text{Length (cm)} \times \text{Width (cm)} \times \text{Height (cm)}}{5000}$$
 * **Billable Weight Selection:** Applies $\max(\text{actualWeight}, \text{volumetricWeight})$.
@@ -35,52 +35,52 @@ The application features a **High-Contrast Technical Blueprint UI Design System*
 * **COD Collection Surcharges:** Includes flat Cash-on-Delivery handling fees + percentage collection fees.
 * **Interactive Sandbox Simulator:** Features interactive sliders, map pin location selectors, and live price breakdown cards.
 
-### 2. 🗺️ GeoJSON Spatial Delivery Zone Engine (`/zones`)
+### 2. GeoJSON Spatial Delivery Zone Engine (`/zones`)
 * **Turf.js Point-in-Polygon Engine:** Accurately matches GPS coordinates `[lng, lat]` to spatial zone boundaries.
 * **Interactive Leaflet Map Visualizer:** Renders colored GeoJSON zone overlays with custom high-contrast SVG markers.
 * **1-Click NCR Zone Seeding:** Instantly seeds standard delivery zones (*South Gurgaon Core, Cyber City, West Delhi, Noida Core*).
 * **Raw GeoJSON Polygon Editor Modal:** Allows admins to paste raw coordinate arrays to create new custom spatial zones.
 
-### 3. 🤖 Agentic AI Address Resolution Engine (`/orders` Modal)
+### 3. Agentic AI Address Resolution Engine (`/orders` Modal)
 * **Google Gemini 1.5 Flash LLM:** Parses unstructured Indian address strings (e.g. *"Opposite Apollo Pharmacy near Green Park metro, Delhi 110016"*).
 * **Automated Field Extraction:** Extracts street, city, 6-digit pincode, landmark, and infers B2B vs. B2C client type.
 * **Regex Heuristic Fallback:** Ensures zero-friction operation even if `GEMINI_API_KEY` is omitted.
 
-### 4. ⚡ ACID Nearest-Neighbor Agent Auto-Assignment (`/orders`)
+### 4. ACID Nearest-Neighbor Agent Auto-Assignment (`/orders`)
 * **Greedy Haversine Solver:** Finds geographically closest available delivery driver in real time.
 * **Capacity Limit Safeguards:** Enforces driver concurrency limits (`currentActiveOrderCount < maxConcurrentOrders`).
 * **ACID Transaction Isolation:** MongoDB transaction sessions prevent double-booking race conditions during simultaneous dispatches.
 * **Standalone MongoDB Fallback:** Gracefully falls back when running on standalone Mongo instances without replica sets.
 
-### 5. 🚚 Driver Mobile Duty Console & State Machine (`/agent-dashboard`)
+### 5. Driver Mobile Duty Console & State Machine (`/agent-dashboard`)
 * **Directed Graph State Machine:** Enforces valid lifecycle transitions:
   $$\text{CREATED} \longrightarrow \text{PICKED\_UP} \longrightarrow \text{IN\_TRANSIT} \longrightarrow \text{OUT\_FOR\_DELIVERY} \longrightarrow \text{DELIVERED} \text{ or } \text{FAILED}$$
 * **Mobile Driver App:** Enables drivers to set status (*IDLE, EN_ROUTE_PICKUP, IN_TRANSIT, OFF_DUTY*), broadcast live GPS coordinates, and mark status transitions with 1-click buttons.
 * **Failure Diagnostic Reporting:** Captures diagnostic failure codes (*CUSTOMER_UNAVAILABLE, INCORRECT_ADDRESS, CASH_UNAVAILABLE_COD, ACCESS_RESTRICTED*).
 
-### 6. 📅 Targeted Failure Reschedule & Re-Zoning Engine (`/track-search`)
+### 6. Targeted Failure Reschedule & Re-Zoning Engine (`/track-search`)
 * **Customer Self-Service Reschedule:** Allows customers or admins to reschedule failed shipments.
 * **Address Correction & Re-Zoning:** Re-calculates pricing and spatial zones if the drop address changes and re-queues shipment for assignment.
 
-### 7. 📡 Real-Time Socket.io Gateway & Event Audit Log
+### 7. Real-Time Socket.io Gateway & Event Audit Log
 * **Sub-Second Room Subscriptions:** Channels (`order:${id}`, `admin`, `agent:${id}`) broadcast live status changes and GPS telemetry.
 * **Immutable Event Audit Log:** Writes unchangeable history entries (`OrderAuditLog`) capturing payload snapshots, actor roles, IP addresses, and timestamps.
 * **Automated Notifications:** Sends SMTP email receipts (via Nodemailer) and simulated SMS text alerts.
 
-### 8. 🔍 Public Unauthenticated Order Tracking Timeline (`/track/:trackingId`)
+### 8. Public Unauthenticated Order Tracking Timeline (`/track/:trackingId`)
 * **No Login Required:** Customers track packages using 10-character tracking codes (e.g. `DEL-984201-X`).
 * **5-Stage Progress Stepper:** Displays real-time shipment progression.
 * **Live Route Map:** Shows pickup, drop, driver location, and polyline route.
 
-### 9. 🎭 Evaluator 1-Click Floating Demo Dock (`DemoRoleSwitcher.tsx`)
+### 9. Evaluator 1-Click Floating Demo Dock (`DemoRoleSwitcher.tsx`)
 * **Zero-Friction Testing:** Bottom floating dock allows 1-click role switching between:
-  * 🛡️ **Admin** (Dispatch Command Center)
-  * 🚚 **Karan Sharma (Agent)** (South Gurgaon Driver)
-  * 🏢 **Apex Logistics (B2B Customer)**
+  * Admin (Dispatch Command Center)
+  * Karan Sharma (Agent) (South Gurgaon Driver)
+  * Apex Logistics (B2B Customer)
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 | Layer | Technologies | Purpose |
 | :--- | :--- | :--- |
@@ -97,7 +97,7 @@ The application features a **High-Contrast Technical Blueprint UI Design System*
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 lastMileDelivery/
@@ -149,7 +149,7 @@ lastMileDelivery/
 
 ---
 
-## ⚡ Quick Start Guide
+## Quick Start Guide
 
 ### Prerequisites
 * **Node.js**: v18.x or higher
@@ -182,12 +182,12 @@ Start both the Express backend server (`localhost:5000`) and the Vite React fron
 npm run dev
 ```
 
-* 🌐 **Frontend Client:** `http://localhost:5173`
-* ⚡ **Backend API Server:** `http://localhost:5000`
+* **Frontend Client:** `http://localhost:5173`
+* **Backend API Server:** `http://localhost:5000`
 
 ---
 
-## 🧪 Automated E2E Verification Test Suite
+## Automated E2E Verification Test Suite
 
 Run the backend integration test suite:
 
@@ -196,19 +196,19 @@ npm test --workspace=server
 ```
 
 **Test Suite Coverage (`verifyIntegration.ts`):**
-* ✅ Pure Volumetric Rate Engine calculations ($5/5$ sub-tests)
-* ✅ Turf.js GeoJSON Point-in-Polygon zone detection ($2/2$ sub-tests)
-* ✅ Directed Graph State Machine transition rules ($8/8$ sub-tests)
-* ✅ Agentic AI Address Resolution Service & Heuristic Parser ($3/3$ sub-tests)
+* Pure Volumetric Rate Engine calculations (5/5 sub-tests)
+* Turf.js GeoJSON Point-in-Polygon zone detection (2/2 sub-tests)
+* Directed Graph State Machine transition rules (8/8 sub-tests)
+* Agentic AI Address Resolution Service & Heuristic Parser (3/3 sub-tests)
 
 ---
 
-## 📖 Living Documentation Index
-* 📘 **[decisions.md](decisions.md)** — Detailed record of all 52 architectural decisions and design choices.
-* 🧭 **[flow.md](flow.md)** — Step-by-step execution flows, module call graphs, and sequence diagrams.
-* 🛠️ **[tech.md](tech.md)** — Technology stack specifications and component catalog.
+## Living Documentation Index
+* **[decisions.md](decisions.md)** — Detailed record of all 52 architectural decisions and design choices.
+* **[flow.md](flow.md)** — Step-by-step execution flows, module call graphs, and sequence diagrams.
+* **[tech.md](tech.md)** — Technology stack specifications and component catalog.
 
 ---
 
-## 📄 License
+## License
 Distributed under the MIT License. See `LICENSE` for more information.
