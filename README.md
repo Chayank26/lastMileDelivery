@@ -159,7 +159,7 @@ lastMileDelivery/
 Clone the repository and install dependencies:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/lastMileDelivery.git
+git clone https://github.com/Chayank26/lastMileDelivery.git
 cd lastMileDelivery
 npm install
 ```
