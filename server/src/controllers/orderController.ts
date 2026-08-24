@@ -95,11 +95,21 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
     }
 
     if (!rateCard) {
-      res.status(500).json({
-        error: 'Configuration Error',
-        message: 'No active rate card available. Please ask Admin to configure a rate card.',
+      // Dynamically auto-seed a default rate card if none exists in MongoDB
+      rateCard = await RateCard.create({
+        name: 'NCR Default Rate Card',
+        baseFee: 50,
+        volumetricDivisor: 5000,
+        intraZoneB2CRatePerKg: 15,
+        intraZoneB2BRatePerKg: 25,
+        interZoneB2CRatePerKg: 30,
+        interZoneB2BRatePerKg: 40,
+        codSurchargeB2C: 15,
+        codSurchargeB2B: 20,
+        codPercentageFee: 0.02,
+        isDefault: true,
+        isActive: true,
       });
-      return;
     }
 
     // 3. Execute Pure Rate Calculation Engine

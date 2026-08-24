@@ -46,22 +46,32 @@ export const connectDatabase = async (): Promise<typeof mongoose> => {
  * @returns Result of the transaction callback
  */
 export const runInTransaction = async <T>(
-  callback: (session: ClientSession) => Promise<T>
+  callback: (session: ClientSession | null) => Promise<T>
 ): Promise<T> => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
+  let session: ClientSession | null = null;
+  try {
+    session = await mongoose.startSession();
+    session.startTransaction();
+  } catch (err: any) {
+    // Standalone MongoDB instances without replica sets do not support transactions
+    session = null;
+  }
+
+  if (!session) {
+    return callback(null);
+  }
 
   try {
     const result = await callback(session);
     await session.commitTransaction();
     return result;
   } catch (error) {
-    // Abort transaction and rollback all mutations performed during this session
-    await session.abortTransaction();
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+    }
     console.error('[ACID TRANSACTION ROLLED BACK]:', error);
     throw error;
   } finally {
-    // End session memory allocation
     session.endSession();
   }
 };

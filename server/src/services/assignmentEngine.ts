@@ -32,15 +32,19 @@ export interface IAssignmentResult {
 export const executeAutoAssignment = async (
   order: IOrder,
   actor: IUser,
-  session: ClientSession
+  session?: ClientSession | null
 ): Promise<IAssignmentResult> => {
   // 1. Query candidate agents who are active and have available capacity
-  const candidateAgents = await AgentProfile.find({
+  const candidateQuery = AgentProfile.find({
     isActive: true,
     status: { $nin: [AgentStatus.OFFLINE, AgentStatus.MAX_CAPACITY] },
-  })
-    .populate('user', 'name email phone role')
-    .session(session);
+  }).populate('user', 'name email phone role');
+
+  if (session) {
+    candidateQuery.session(session);
+  }
+
+  const candidateAgents = await candidateQuery;
 
   if (!candidateAgents || candidateAgents.length === 0) {
     throw new Error('No active delivery agents found in system.');
