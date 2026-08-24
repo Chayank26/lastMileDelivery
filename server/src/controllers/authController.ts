@@ -174,9 +174,12 @@ export const demoLogin = async (req: Request, res: Response): Promise<void> => {
         role: targetRole,
         isDemoAccount: true,
       });
+    }
 
-      // If created user is an AGENT, auto-seed an AgentProfile record with location
-      if (targetRole === UserRole.AGENT) {
+    // Ensure AgentProfile document exists if targetRole is AGENT
+    if (targetRole === UserRole.AGENT) {
+      let agentProfile = await AgentProfile.findOne({ user: user._id });
+      if (!agentProfile) {
         await AgentProfile.create({
           user: user._id,
           status: AgentStatus.IDLE,
